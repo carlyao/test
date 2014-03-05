@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/**|abc/" kind="src" path="src/web"/>
+	<classpathentry kind="src" path="etc/META-INF"/>
+	<classpathentry kind="src" path="web/WEB-INF"/>
+	<classpathentry excluding="**/.svn/**" kind="src" path="src/service"/>
+	<classpathentry excluding="**/.svn/**" kind="src" path="src/common"/>
+	<classpathentry excluding="**/.svn/**" kind="src" path="src/test"/>
+	<classpathentry kind="src" path="src/tools"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/j2ee/servletapi-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/logging/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache/slf4j-api-1.5.11.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache/slf4j-log4j12-1.5.11.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-configuration-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-context-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-web-3.2.5.RELEASE.jar" sourcepath="D:/workspace/maven/org/springframework/spring-web/3.2.5.RELEASE/spring-web-3.2.5.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-beans-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-core-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/freemarker/freemarker.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-orm-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-webmvc-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/qdox/qdox.jar"/>
+	<classpathentry kind="lib" path="lib/jalopy/jalopy.jar"/>
+	<classpathentry kind="lib" path="lib/javamail/mail.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache/ehcache-core-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/hibernate-core-4.2.7.Final.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/memcached/java_memcached-release_2.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-tx-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-aop-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-expression-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-context-support-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.0.3-bin.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-dbcp-1.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-jdbc-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/hibernate-commons-annotations-4.0.2.Final.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/jboss-logging-3.1.0.GA.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/jta-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/ejb3-persistence.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-oxm-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/javassist-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate/jboss-transaction-api_1.1_spec-1.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-beanutils-1.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-aspects-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-instrument-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/spring-test-3.2.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/junit/junit-4.5.jar"/>
+	<classpathentry kind="lib" path="lib/aspect/aopalliance.jar"/>
+	<classpathentry kind="lib" path="lib/aspect/aspectjrt.jar"/>
+	<classpathentry kind="lib" path="lib/aspect/aspectjweaver.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-pool-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-digester-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-email-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-chain-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-math-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-net-1.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-validator-1.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/jakarta-oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/xml/xstream-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient/httpclient-4.2.5.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient/httpcore-4.2.4.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient/httpmime-4.2.5.jar"/>
+	<classpathentry kind="lib" path="lib/json/json-lib-2.3-jdk15.jar"/>
+	<classpathentry kind="lib" path="lib/json/jackson-core-asl-1.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/json/jackson-mapper-asl-1.9.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

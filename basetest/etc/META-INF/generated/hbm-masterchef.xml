@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-lazy="true" auto-import="false" default-cascade="evict">
+	<class name="com.augmentum.masterchef.model.Version" table="Version">
+		<cache usage="read-write" />
+		<id name="version" type="java.lang.String">
+			<generator class="assigned" />
+		</id>
+		<property name="createdDate" type="org.hibernate.type.TimestampType" />
+	</class>
+	<class name="com.augmentum.masterchef.model.User" table="User">
+		<cache usage="read-write" />
+		<id name="userId" type="java.lang.Long">
+			<generator class="native" />
+		</id>
+		<property name="accountId" type="org.hibernate.type.LongType" />
+		<property name="lastLoginIP" type="org.hibernate.type.StringType" />
+		<property name="loginUserId" type="org.hibernate.type.StringType" />
+		<property name="userName" type="org.hibernate.type.StringType" />
+	</class>
+	<class name="com.augmentum.masterchef.model.Account" table="Account">
+		<cache usage="read-write" />
+		<id name="accountId" type="java.lang.Long">
+			<generator class="native" />
+		</id>
+		<property name="accountName" type="org.hibernate.type.StringType" />
+		<property name="createdBy" type="org.hibernate.type.StringType" />
+		<property name="ip" type="org.hibernate.type.StringType" />
+		<property name="lastLoginTime" type="org.hibernate.type.TimestampType" />
+		<property name="loginUserId" type="org.hibernate.type.StringType" />
+		<property name="modifiedBy" type="org.hibernate.type.StringType" />
+		<property name="modifiedDate" type="org.hibernate.type.TimestampType" />
+		<property name="password" type="org.hibernate.type.StringType" />
+		<property name="platform" type="org.hibernate.type.StringType" />
+		<property name="registerTime" type="org.hibernate.type.TimestampType" />
+		<property name="sessionId" type="org.hibernate.type.StringType" />
+	</class>
+	<class name="com.augmentum.masterchef.model.AccountHistory" table="AccountHistory">
+		<cache usage="read-write" />
+		<id name="accountHistoryId" type="java.lang.Long">
+			<generator class="native" />
+		</id>
+		<property name="accountId" type="org.hibernate.type.LongType" />
+		<property name="ip" type="org.hibernate.type.StringType" />
+		<property name="keyValue" type="org.hibernate.type.StringType" />
+		<property name="loginTime" type="org.hibernate.type.TimestampType" />
+		<property name="modifiedDate" type="org.hibernate.type.TimestampType" />
+		<property name="sessionId" type="org.hibernate.type.StringType" />
+	</class>
+	<class name="com.augmentum.masterchef.model.Wallet_Def" table="Wallet_Def">
+		<cache usage="read-write" />
+		<id name="walletId" type="java.lang.Long">
+			<generator class="assigned" />
+		</id>
+		<property name="defaultValue" type="org.hibernate.type.IntegerType" />
+		<property name="description" type="org.hibernate.type.StringType" />
+		<property name="name" type="org.hibernate.type.StringType" />
+	</class>
+	<class name="com.augmentum.masterchef.model.UserWallet" table="UserWallet">
+		<cache usage="read-write" />
+		<id name="userWalletId" type="java.lang.Long">
+			<generator class="native" />
+		</id>
+		<property name="createDate" type="org.hibernate.type.TimestampType" />
+		<property name="userId" type="org.hibernate.type.LongType" />
+		<property name="value" type="org.hibernate.type.IntegerType" />
+		<property name="walletId" type="org.hibernate.type.LongType" />
+	</class>
+	<class name="com.augmentum.masterchef.model.UserWalletTransaction" table="UserWalletTransaction">
+		<cache usage="read-write" />
+		<id name="transactionId" type="java.lang.Long">
+			<generator class="native" />
+		</id>
+		<property name="createDate" type="org.hibernate.type.TimestampType" />
+		<property name="ip" type="org.hibernate.type.StringType" />
+		<property name="subject" type="org.hibernate.type.StringType" />
+		<property name="totalSpend" type="org.hibernate.type.IntegerType" />
+		<property name="userId" type="org.hibernate.type.LongType" />
+		<property name="userWalletId" type="org.hibernate.type.LongType" />
+		<property name="walletId" type="org.hibernate.type.LongType" />
+	</class>
+</hibernate-mapping>

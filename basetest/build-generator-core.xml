@@ -1,0 +1,77 @@
+<project name="ktservices-generator" basedir="." default="build-service-all">
+    <import file="properties.xml" />
+
+    <target name="compile.common">
+        <ant dir="."
+             antfile="build-core.xml"
+             target="compile-common"
+             inheritAll="false"
+             inheritRefs="false" />
+    </target>
+
+    <target name="build-service">
+        <antcall target="compile.common" />
+
+        <java classname="com.augmentum.common.tools.generator.ServiceBuilder"
+              classpathref="project.classpath"
+              fork="true"
+              maxmemory="256m"
+              newenvironment="true">
+            <jvmarg value="-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger" />
+            <jvmarg value="-Dservice.input.file=${service.file}" />
+            <jvmarg value="-Dservice.hbm.file=${project.dir}/etc/META-INF/generated/hbm-${project.name}.xml" />
+            <jvmarg value="-Dservice.spring.file=${project.dir}/etc/META-INF/generated/spring-${project.name}.xml" />
+            <jvmarg value="-Dservice.impl.dir=${project.dir}/src/service" />
+            <jvmarg value="-Dservice.sql.dir=${project.dir}/sql/generated" />
+            <jvmarg value="-Dservice.sql.file=tables.sql" />
+            <jvmarg value="-Dservice.sql.indexes.file=indexes.sql" />
+            <jvmarg value="-Dservice.sql.indexes.properties.file=indexes.properties" />
+            <jvmarg value="-Dservice.sql.sequences.file=sequences.sql" />
+            <jvmarg value="-Dservice.sql.foreignkey.file=foreignkey.sql" />
+
+            <!-- enable remote debugging
+			<jvmarg value="-Xdebug" />
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" />
+			-->
+        </java>
+
+        <!--<delete file="ServiceBuilder.temp" />-->
+    </target>
+
+    <target name="build-service-test">
+        <antcall target="build-service">
+            <param name="service.file" value="src/service/com/kt/test/service-test.xml" />
+            <param name="project.dir" value="${basedir}" />
+            <param name="project.name" value="base" />
+        </antcall>
+    </target>
+
+
+
+    <target name="build-service-cacheconfig">
+        <antcall target="build-service">
+            <param name="service.file"
+                   value="src/service/com/kt/cacheconfig/service-cacheconfig.xml" />
+            <param name="project.dir" value="${basedir}" />
+            <param name="project.name" value="base" />
+        </antcall>
+    </target>
+
+    <target name="build-service-all">
+        <antcall target="build-service-cacheconfig" />
+    </target>
+
+    <target name="format-source">
+        <copy todir="classes" overwrite="yes">
+            <fileset dir="src" includes="com/kt/common/tools/generator/dependencies/*.properties" />
+        </copy>
+
+        <java classname="com.kt.common.util.SourceFormatter"
+              classpathref="project.classpath"
+              dir="${project.dir}"
+              fork="true"
+              newenvironment="true" />
+
+        <delete file="ServiceBuilder.temp" />
+    </target>
+</project>

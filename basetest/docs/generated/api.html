@@ -1,0 +1,145 @@
+<html>
+<head>
+<title>Barbarian - Server API</title>
+<style type="text/css">
+body {
+	font-family: Calibri, arial, sans-serif;
+	font-size: 14px;
+}
+body {
+    font-family: Calibri, arial, sans-serif;
+    font-size: 14px;
+}
+table.api {
+    border-collapse: collapse;
+    border-top: 1px solid #BBBBBB;
+    border-right: 1px solid #BBBBBB;
+    float: left;
+    margin-right: 15px;
+    margin-bottom: 15px;
+}
+table.api th,td {
+    border-left: 1px solid #BBBBBB;
+    border-bottom: 1px solid #BBBBBB;
+    padding: 3px;
+}
+table.api th {
+    
+}
+table.api td.api-info {
+    font-weight: bold;
+    background: none repeat scroll 0 0 #EEEEEE;
+    color: #0000CC;
+}
+table.api td.ctp {
+    text-align: right;
+}
+table.api a:visited {
+    color: blue;
+}
+.api-group {
+    border: 1px solid #BBBBBB; 
+    padding-left: 8px; 
+    margin-bottom: 10px; 
+    overflow-x: auto;
+}
+.api-group-name {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 24px;
+}
+</style>
+</head>
+<body>
+        <div class="api-group">
+    <div class="api-group-name">Login</div>
+
+	<table class="api">
+		<tr>
+			<td class="api-info" colspan="2">(1) login3</td>
+		</tr>
+		<tr>
+			<td class="ctp">Request</td>
+			<td>POST /login</td>
+		</tr>
+		<tr>
+		    <td class="ctp">Parameter</td>
+            <td>
+            
+            
+            int loginType
+            <br/>
+            String loginUserId
+            <br/>
+            String loginSession
+            <br/>
+            String name
+            </td>
+        </tr>
+        <tr>
+            <td class="ctp">Response</td>
+            <td><a href="vo.html#UserInformationVo">UserInformationVo</a>
+            </td>
+        </tr>
+	</table>
+
+	
+	</div>
+    <div class="api-group">
+    <div class="api-group-name">TestLogin</div>
+
+	<table class="api">
+		<tr>
+			<td class="api-info" colspan="2">(2) login3</td>
+		</tr>
+		<tr>
+			<td class="ctp">Request</td>
+			<td>POST /testLogin</td>
+		</tr>
+		<tr>
+		    <td class="ctp">Parameter</td>
+            <td>
+            
+            
+            long userId
+            <br/>
+            String name
+            </td>
+        </tr>
+        <tr>
+            <td class="ctp">Response</td>
+            <td><a href="vo.html#TestLoginVo">TestLoginVo</a>
+            </td>
+        </tr>
+	</table>
+
+	<table class="api">
+		<tr>
+			<td class="api-info" colspan="2">(3) login</td>
+		</tr>
+		<tr>
+			<td class="ctp">Request</td>
+			<td>POST /testLogin2</td>
+		</tr>
+		<tr>
+		    <td class="ctp">Parameter</td>
+            <td>
+            
+            
+            long userId
+            <br/>
+            String name
+            </td>
+        </tr>
+        <tr>
+            <td class="ctp">Response</td>
+            <td><a href="vo.html#TestLoginVo">TestLoginVo</a>
+            </td>
+        </tr>
+	</table>
+
+	
+	</div>
+</body>
+</html>

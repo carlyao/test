@@ -1,0 +1,486 @@
+<html>
+<head>
+<title>Barbarian - Value Object</title>
+<style type="text/css">
+body {
+    font-family: Calibri, arial, sans-serif;
+    font-size: 14px;
+}
+table.vo {
+    border-collapse: collapse;
+    border-top: 1px solid #BBBBBB;
+    border-right: 1px solid #BBBBBB;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+table.vo th,td {
+    border-left: 1px solid #BBBBBB;
+    border-bottom: 1px solid #BBBBBB;
+    padding: 3px;
+}
+table.vo td.vo-name {
+    font-weight: bold;
+    background: none repeat scroll 0 0 #EEEEEE;
+    color: #0000CC;
+}
+table.vo td.ctp {
+    text-align: right;
+}
+table.vo a:visited {
+    color: blue;
+}
+.sel-mav {
+    margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+    <div class="sel-mav">
+        <select onchange="javascript:location.href='#'+this.options[this.selectedIndex].value;">
+                        <option value="AppStoreReceiptVo">AppStoreReceiptVo</option>
+            <option value="GamePortalUserInfoVo">GamePortalUserInfoVo</option>
+            <option value="SessionVO">SessionVO</option>
+            <option value="SocialConnectorAccountInfoVo">SocialConnectorAccountInfoVo</option>
+            <option value="SocialConnectorFriendInfoVo">SocialConnectorFriendInfoVo</option>
+            <option value="SocialConnectorInfoVo">SocialConnectorInfoVo</option>
+            <option value="SocialConnectorSimpleAccountInfoVo">SocialConnectorSimpleAccountInfoVo</option>
+            <option value="SocialConnectorUserInfoVo">SocialConnectorUserInfoVo</option>
+            <option value="StoreReceiptVo">StoreReceiptVo</option>
+            <option value="TestLoginVo">TestLoginVo</option>
+            <option value="UserInformationVo">UserInformationVo</option>
+            <option value="UserInfoVo">UserInfoVo</option>
+            <option value="UserVo">UserVo</option>
+            <option value="WalletVo">WalletVo</option>
+        </select>
+    </div>
+    
+    <table class="vo" border="0" id="AppStoreReceiptVo">
+        <tr>
+            <td class="vo-name" colspan="2">(1) AppStoreReceiptVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">int</td>
+            <td>status</td>
+        </tr>
+        <tr>
+            <td class="ctp"><a href="#StoreReceiptVo">StoreReceiptVo</a></td>
+            <td>storeReceiptVo</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="GamePortalUserInfoVo">
+        <tr>
+            <td class="vo-name" colspan="2">(2) GamePortalUserInfoVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>username</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>userId</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>avatar</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>nickname</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="SessionVO">
+        <tr>
+            <td class="vo-name" colspan="2">(3) SessionVO</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">long</td>
+            <td>serialVersionUID</td>
+        </tr>
+        <tr>
+            <td class="ctp">Long</td>
+            <td>activeSeconds</td>
+        </tr>
+        <tr>
+            <td class="ctp">Date</td>
+            <td>activeTime</td>
+        </tr>
+        <tr>
+            <td class="ctp">Long</td>
+            <td>gameId</td>
+        </tr>
+        <tr>
+            <td class="ctp">Long</td>
+            <td>gameServerId</td>
+        </tr>
+        <tr>
+            <td class="ctp">Long</td>
+            <td>id</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>ip</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>keyValue</td>
+        </tr>
+        <tr>
+            <td class="ctp">Date</td>
+            <td>lastAccessTime</td>
+        </tr>
+        <tr>
+            <td class="ctp">Date</td>
+            <td>loginTime</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>sessionId</td>
+        </tr>
+        <tr>
+            <td class="ctp">boolean</td>
+            <td>isSingleSignon</td>
+        </tr>
+        <tr>
+            <td class="ctp">Long</td>
+            <td>characterId</td>
+        </tr>
+        <tr>
+            <td class="ctp">Long</td>
+            <td>accountId</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="SocialConnectorAccountInfoVo">
+        <tr>
+            <td class="vo-name" colspan="2">(4) SocialConnectorAccountInfoVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>message</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>code</td>
+        </tr>
+        <tr>
+            <td class="ctp">List&lt;<a href="#SocialConnectorUserInfoVo">SocialConnectorUserInfoVo</a>&gt;</td>
+            <td>data</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="SocialConnectorFriendInfoVo">
+        <tr>
+            <td class="vo-name" colspan="2">(5) SocialConnectorFriendInfoVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>message</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>code</td>
+        </tr>
+        <tr>
+            <td class="ctp">List&lt;<a href="#SocialConnectorUserInfoVo">SocialConnectorUserInfoVo</a>&gt;</td>
+            <td>data</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="SocialConnectorInfoVo">
+        <tr>
+            <td class="vo-name" colspan="2">(6) SocialConnectorInfoVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>message</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>code</td>
+        </tr>
+        <tr>
+            <td class="ctp"><a href="#SocialConnectorUserInfoVo">SocialConnectorUserInfoVo</a></td>
+            <td>data</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="SocialConnectorSimpleAccountInfoVo">
+        <tr>
+            <td class="vo-name" colspan="2">(7) SocialConnectorSimpleAccountInfoVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>accountId</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>provider</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="SocialConnectorUserInfoVo">
+        <tr>
+            <td class="vo-name" colspan="2">(8) SocialConnectorUserInfoVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>id</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>userName</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>attribute</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>auth</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>provider</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>gender</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>friendIds</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>userId</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>nickName</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>tinyurl</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>mainurl</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>headurl</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>homepageurl</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="StoreReceiptVo">
+        <tr>
+            <td class="vo-name" colspan="2">(9) StoreReceiptVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">int</td>
+            <td>quantity</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>product_id</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>transaction_id</td>
+        </tr>
+        <tr>
+            <td class="ctp">Date</td>
+            <td>purchase_date</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>original_transaction_id</td>
+        </tr>
+        <tr>
+            <td class="ctp">Date</td>
+            <td>original_purchase_date</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>app_item_id</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>version_external_identifier</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>bid</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>bvrs</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="TestLoginVo">
+        <tr>
+            <td class="vo-name" colspan="2">(10) TestLoginVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">long</td>
+            <td>userId</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>userName</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="UserInformationVo">
+        <tr>
+            <td class="vo-name" colspan="2">(11) UserInformationVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp"><a href="#UserVo">UserVo</a></td>
+            <td>userVo</td>
+        </tr>
+        <tr>
+            <td class="ctp"><a href="#WalletVo">WalletVo</a></td>
+            <td>walletVo</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="UserInfoVo">
+        <tr>
+            <td class="vo-name" colspan="2">(12) UserInfoVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>id</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>name</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>image</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>error_code</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>Msg</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>platformIcon</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>provider</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>gender</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="UserVo">
+        <tr>
+            <td class="vo-name" colspan="2">(13) UserVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">long</td>
+            <td>userId</td>
+        </tr>
+        <tr>
+            <td class="ctp">String</td>
+            <td>name</td>
+        </tr>
+    </table>
+    
+    <table class="vo" border="0" id="WalletVo">
+        <tr>
+            <td class="vo-name" colspan="2">(14) WalletVo</td>
+        </tr>
+        <tr align="center">
+            <th>Type</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td class="ctp">long</td>
+            <td>cash</td>
+        </tr>
+        <tr>
+            <td class="ctp">long</td>
+            <td>coin</td>
+        </tr>
+        <tr>
+            <td class="ctp">long</td>
+            <td>userId</td>
+        </tr>
+        <tr>
+            <td class="ctp">long</td>
+            <td>timestamp</td>
+        </tr>
+    </table>
+    
+</body>
+</html>

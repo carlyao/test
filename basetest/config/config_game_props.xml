@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+	<properties fileName="init_gameserver_config.properties"/>
+	<properties fileName="init_game_config.properties"/>
+</configuration>

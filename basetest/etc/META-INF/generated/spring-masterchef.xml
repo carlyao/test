@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans default-init-method="init" default-destroy-method="destroy">
+	<bean id="com.augmentum.masterchef.service.VersionService" class="com.augmentum.masterchef.service.VersionServiceImpl" lazy-init="true">
+		<property name="dao">
+			<ref bean="com.augmentum.masterchef.dao.VersionDAO" />
+		</property>
+	</bean>
+	<bean id="com.augmentum.masterchef.dao.VersionDAO" class="com.augmentum.masterchef.dao.VersionDAOImpl" lazy-init="true"></bean>
+	<bean id="com.augmentum.masterchef.service.UserService" class="com.augmentum.masterchef.service.UserServiceImpl" lazy-init="true">
+		<property name="dao">
+			<ref bean="com.augmentum.masterchef.dao.UserDAO" />
+		</property>
+	</bean>
+	<bean id="com.augmentum.masterchef.dao.UserDAO" class="com.augmentum.masterchef.dao.UserDAOImpl" lazy-init="true"></bean>
+	<bean id="com.augmentum.masterchef.service.AccountService" class="com.augmentum.masterchef.service.AccountServiceImpl" lazy-init="true">
+		<property name="dao">
+			<ref bean="com.augmentum.masterchef.dao.AccountDAO" />
+		</property>
+	</bean>
+	<bean id="com.augmentum.masterchef.dao.AccountDAO" class="com.augmentum.masterchef.dao.AccountDAOImpl" lazy-init="true"></bean>
+	<bean id="com.augmentum.masterchef.service.AccountHistoryService" class="com.augmentum.masterchef.service.AccountHistoryServiceImpl" lazy-init="true">
+		<property name="dao">
+			<ref bean="com.augmentum.masterchef.dao.AccountHistoryDAO" />
+		</property>
+	</bean>
+	<bean id="com.augmentum.masterchef.dao.AccountHistoryDAO" class="com.augmentum.masterchef.dao.AccountHistoryDAOImpl" lazy-init="true"></bean>
+	<bean id="com.augmentum.masterchef.service.Wallet_DefService" class="com.augmentum.masterchef.service.Wallet_DefServiceImpl" lazy-init="true">
+		<property name="dao">
+			<ref bean="com.augmentum.masterchef.dao.Wallet_DefDAO" />
+		</property>
+	</bean>
+	<bean id="com.augmentum.masterchef.dao.Wallet_DefDAO" class="com.augmentum.masterchef.dao.Wallet_DefDAOImpl" lazy-init="true"></bean>
+	<bean id="com.augmentum.masterchef.service.UserWalletService" class="com.augmentum.masterchef.service.UserWalletServiceImpl" lazy-init="true">
+		<property name="dao">
+			<ref bean="com.augmentum.masterchef.dao.UserWalletDAO" />
+		</property>
+	</bean>
+	<bean id="com.augmentum.masterchef.dao.UserWalletDAO" class="com.augmentum.masterchef.dao.UserWalletDAOImpl" lazy-init="true"></bean>
+	<bean id="com.augmentum.masterchef.service.UserWalletTransactionService" class="com.augmentum.masterchef.service.UserWalletTransactionServiceImpl" lazy-init="true">
+		<property name="dao">
+			<ref bean="com.augmentum.masterchef.dao.UserWalletTransactionDAO" />
+		</property>
+	</bean>
+	<bean id="com.augmentum.masterchef.dao.UserWalletTransactionDAO" class="com.augmentum.masterchef.dao.UserWalletTransactionDAOImpl" lazy-init="true"></bean>
+</beans>

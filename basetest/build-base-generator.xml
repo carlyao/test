@@ -1,0 +1,34 @@
+<project >
+    <import file="${platform.root.dir}/properties.xml"/>
+
+    <taskdef classpathref="project.classpath" resource="net/sf/antcontrib/antlib.xml"/>
+    
+    <target name="build-service"> 
+        <for param="service">
+            <path>
+              <fileset dir="${basedir}/src/service" includes="**/service-*.xml"/>
+            </path>   
+            <sequential>
+		        <subant target="build-service">
+		            <fileset dir="${platform.root.dir}" includes="build-generator-core.xml"/>
+		            <property name="service.file" value="@{service}"/>
+		            <property name="project.dir" value="${basedir}"/>
+		            <property name="project.name" value="${webapp.name}"/>
+	            	<property name="platform.root.dir" value="${platform.root.dir}"/>
+		        </subant>
+            </sequential>
+        </for>
+    </target>
+    
+    <target name="build-service-platform">
+        <subant target="build-service-all">
+            <fileset dir="${platform.root.dir}" includes="build-generator.xml"/>
+        </subant>
+    </target>
+    
+    <target name="build-service-with-platform">
+        <antcall target="build-service-platform" />
+        <antcall target="build-service" />
+    </target>
+
+</project>

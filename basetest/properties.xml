@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<property environment="env" />
+	<property name="deploy_env" value="${env.deploy_env}" />
+	
+	<!-- Directory structure of the project -->
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="build.sql.dir" value="${basedir}/build/sql" />
+	<property name="dist.dir" value="${basedir}/dist" />
+	<property name="global.build.dir" value="${basedir}/build/global_build" />
+	<property name="game.build.dir" value="${basedir}/build/game_build" />
+
+	
+	<!--Define folders for platform. If it's platform, will have duplicated foler definition-->
+	<property name="platform.root.dir" value="${basedir}" />
+
+	<!--Global engine and Game engine name-->
+	<property name="globalengine" value="globalengine" />
+	<property name="gameengine" value="gameengine" />
+	
+	<!--Engine root folders-->
+	<property name="account.root.dir" value="${platform.root.dir}/../AccountEngine" />
+	<property name="authentication.root.dir" value="${platform.root.dir}/../AuthenticationEngine" />
+	<property name="wallet.root.dir" value="${platform.root.dir}/../WalletEngine" />
+	<property name="accomplishment.root.dir" value="${platform.root.dir}/../AccomplishmentEngine" />
+	<property name="item.root.dir" value="${platform.root.dir}/../ItemEngine" />
+	<property name="guild.root.dir" value="${platform.root.dir}/../GuildEngine" />
+	<property name="character.root.dir" value="${platform.root.dir}/../CharacterEngine" />
+	<property name="ranking.root.dir" value="${platform.root.dir}/../RankingEngine" />
+	<property name="mission.root.dir" value="${platform.root.dir}/../MissionEngine" />
+	<property name="progression.root.dir" value="${platform.root.dir}/../ProgressionEngine" />
+	<property name="message.root.dir" value="${platform.root.dir}/../MessageEngine" />
+	<property name="socialnetwork.root.dir" value="${platform.root.dir}/../SocialNetworkEngine" />
+	<property name="payment.root.dir" value="${platform.root.dir}/../PaymentProviderEngine" />
+	
+	
+	<!--Other project directories-->
+	<property name="sdk.root.dir" value="${platform.root.dir}/../ClientSDK" />
+    <property name="sdk.src.dir" value="${platform.root.dir}/../ClientSDK/src" />
+
+	<!-- Init sql directories -->
+    <property name="account.tablesql.dir" value="${platform.root.dir}/../AccountEngine/sql/generated/tables.sql" />
+    <property name="account.indexsql.dir" value="${platform.root.dir}/../AccountEngine/sql/generated/indexes.sql" />
+    <property name="authentication.tablesql.dir" value="${platform.root.dir}/../AuthenticationEngine/sql/generated/tables.sql" />
+    <property name="authentication.indexsql.dir" value="${platform.root.dir}/../AuthenticationEngine/sql/generated/indexes.sql" />
+    <property name="wallet.tablesql.dir" value="${platform.root.dir}/../WalletEngine/sql/generated/tables.sql" />
+    <property name="wallet.indexsql.dir" value="${platform.root.dir}/../WalletEngine/sql/generated/indexes.sql" />
+    <property name="accomplishment.tablesql.dir" value="${platform.root.dir}/../AccomplishmentEngine/sql/generated/tables.sql" />
+    <property name="accomplishment.indexsql.dir" value="${platform.root.dir}/../AccomplishmentEngine/sql/generated/indexes.sql" />
+    <property name="item.tablesql.dir" value="${platform.root.dir}/../ItemEngine/sql/generated/tables.sql" />
+    <property name="item.indexsql.dir" value="${platform.root.dir}/../ItemEngine/sql/generated/indexes.sql" />
+    <property name="guild.tablesql.dir" value="${platform.root.dir}/../GuildEngine/sql/generated/tables.sql" />
+    <property name="guild.indexsql.dir" value="${platform.root.dir}/../GuildEngine/sql/generated/indexes.sql" />
+    <property name="character.tablesql.dir" value="${platform.root.dir}/../CharacterEngine/sql/generated/tables.sql" />
+    <property name="character.indexsql.dir" value="${platform.root.dir}/../CharacterEngine/sql/generated/indexes.sql" />
+    <property name="ranking.tablesql.dir" value="${platform.root.dir}/../RankingEngine/sql/generated/tables.sql" />
+    <property name="ranking.indexsql.dir" value="${platform.root.dir}/../RankingEngine/sql/generated/indexes.sql" />
+    <property name="mission.tablesql.dir" value="${platform.root.dir}/../MissionEngine/sql/generated/tables.sql" />
+    <property name="mission.indexsql.dir" value="${platform.root.dir}/../MissionEngine/sql/generated/indexes.sql" />
+    <property name="progression.tablesql.dir" value="${platform.root.dir}/../ProgressionEngine/sql/generated/tables.sql" />
+    <property name="progression.indexsql.dir" value="${platform.root.dir}/../ProgressionEngine/sql/generated/indexes.sql" />
+    <property name="message.tablesql.dir" value="${platform.root.dir}/../MessageEngine/sql/generated/tables.sql" />
+    <property name="message.indexsql.dir" value="${platform.root.dir}/../MessageEngine/sql/generated/indexes.sql" />
+    <property name="socialnetwork.tablessql.dir" value="${platform.root.dir}/../SocialNetworkEngine/sql/generated/tables.sql" />
+    <property name="socialnetwork.indexsql.dir" value="${platform.root.dir}/../SocialNetworkEngine/sql/generated/indexes.sql" />
+	<property name="payment.tablessql.dir" value="${platform.root.dir}/../PaymentProviderEngine/sql/generated/tables.sql" />
+	<property name="payment.indexsql.dir" value="${platform.root.dir}/../PaymentProviderEngine/sql/generated/indexes.sql" />
+	<property name="platform.cachesql.dir" value="${basedir}/sql/updates/cacheconfig.sql" />
+	<property name="platform.cachesql.data.dir" value="${basedir}/sql/updates/cacheconfig-data.sql" />
+
+	<!-- Report sp directories -->
+	<property name="account.reportsp.dir" value="${platform.root.dir}/../AccountEngine/sql/sp/account.sql" />
+	<property name="accomplishment.reportsp.dir" value="${platform.root.dir}/../AccomplishmentEngine/sql/sp/accomplishment.sql" />
+	<property name="authentication.reportsp.dir" value="${platform.root.dir}/../AuthenticationEngine/sql/sp/acquisition.sql" />
+	<property name="item.reportsp.dir" value="${platform.root.dir}/../ItemEngine/sql/sp/virtualItem.sql" />
+	<property name="mission.reportsp.dir" value="${platform.root.dir}/../MissionEngine/sql/sp/mission.sql" />
+	<property name="progression.reportsp.dir" value="${platform.root.dir}/../ProgressionEngine/sql/sp/progression.sql" />
+	<property name="ranking.reportsp.dir" value="${platform.root.dir}/../RankingEngine/sql/sp/ranking.sql" />
+	<property name="wallet.reportsp.dir" value="${platform.root.dir}/../WalletEngine/sql/sp/economic.sql" />
+	
+	<!-- Default options for code-generation, compiling and junit-testing -->
+	<property name="javac.debug" value="true" />
+	<property name="compile.deprecation" value="true" />
+	<!-- build.compiler - seems to be issues using jikes and JDK 1.4 is just as fast-->
+	<property name="build.compiler" value="modern" />
+	<property name="junit.fork" value="true" />
+	<property name="junit.showoutput" value="true" />
+
+	<!-- Library versions and JARs -->
+	<property name="lib.dir" location="${platform.root.dir}/lib" />
+	<property file="${lib.dir}/lib.properties" />	
+	
+	<!-- other directories -->
+	<property name="config.dir" value="${basedir}/config" />
+	<property name="etc.dir" value="${basedir}/etc" />
+	<property name="sql.dir" value="${basedir}/sql" />
+	<property name="tools.dir" value="${basedir}/tools" />
+	<property name="web.dir" value="${basedir}/web" />
+	<property name="test-report.dir" value="${basedir}/docs/test-report" />
+	<property name="unit-report.dir" value="${basedir}/docs/test-report/unit" />
+	<property name="services-config.dir" value="${basedir}/services-config" />
+    
+    <property name="instrumented.dir" value="${build.dir}/instrumented" />
+    <property name="coverage.xml.dir" value="${test-report.dir}/cobertura-xml" />
+    <property name="coverage.summaryxml.dir" value="${test-report.dir}/cobertura-summary-xml" />
+    <property name="coverage.html.dir" value="${test-report.dir}/cobertura-html" />
+
+	<!-- Load user overrides -->
+	<property file="${env.COMPUTERNAME}.build.properties" />
+	<property file="build.properties" />
+	<property file="build_deploy.properties" />
+	<property file="${env.COMPUTERNAME}.app.server.properties" />
+	<property file="app.server.properties" />
+	<property file="web/WEB-INF/classes/mail.properties" />
+	
+	<!-- Database properties -->
+	<property name="database.jar" location="${mysql.jar}" />
+
+	<!-- Application options that will likely vary between applications -->
+	<property name="http.port" value="8080" />
+	<property name="jsp.precompile" value="false" />
+
+	<!-- Build and deploy properties -->
+	<property name="env.COMPUTERNAME" value="${env.HOSTNAME}" />
+
+	<!-- The target directory for building the packed web application -->
+	<property name="webapp.dist" value="${dist.dir}/webapps" />
+	<!-- The target directory for building the unpacked web application -->
+	<property name="webapp.target" value="${build.dir}/web" />
+	<!-- The target directory for building the unfiltered web application -->
+	<property name="webapp.target.unfilter" value="${build.dir}/web_unfilter" />
+	<!-- The target directory for building the packed ear application -->
+	<property name="servicesapp.dist" value="${dist.dir}/servicesapp" />
+	<!-- The target directory for building the unpacked ear application -->
+	<property name="servicesapp.target" value="${build.dir}/servicesapp" />
+	<!-- Should Java compilations set the debug compiler option? -->
+	<property name="compile.debug" value="true" />
+	<!-- Should Java compilations set the deprecation compiler option? -->
+	<property name="compile.deprecation" value="false" />
+	<!-- Should Java compilations set the optimize compiler option? -->
+	<property name="compile.optimize" value="false" />
+	
+	<property name="copy.overwrite" value="false" />
+	<!-- The source directory for the whole project -->
+	<property name="src" value="${basedir}/src" />
+	
+	<!--Define folders for platform. If it's platform, will have duplicated foler-->
+    <property file="${platform.root.dir}/build.${env.CI_ENV}.properties" />
+    <property file="${platform.root.dir}/${env.COMPUTERNAME}.build.properties" />
+    <property file="${platform.root.dir}/build.properties" />
+    <property file="${platform.root.dir}/build_deploy.properties" />
+    <property file="${platform.root.dir}/${env.COMPUTERNAME}.app.server.properties" />
+    <property file="${platform.root.dir}/app.server.properties" />
+    <property file="${platform.root.dir}/web/WEB-INF/classes/mail.properties" />
+	
+	<property file="${platform.root.dir}/${deploy_target}.properties" />
+	     
+    <!-- Platform directories -->
+    <property name="platform.src.dir" value="${platform.root.dir}/src" />
+    <property name="platform.build.dir" value="${platform.root.dir}/build" />
+    <property name="platform.dist.dir" value="${platform.root.dir}/dist" />
+    <property name="platform.build.webapp.target" value="${platform.build.dir}/web" />
+    <property name="platform.build.webapp.target.unfilter" value="${platform.build.dir}/web_unfilter" />
+    <property name="platform.lib.dir" value="${platform.root.dir}/lib" />
+    
+    <path id="project.classpath">
+        <pathelement location="${platform.build.dir}/classes/common" />
+        <pathelement location="${platform.build.dir}/classes/service" />
+        <pathelement location="${platform.build.dir}/classes/web" />
+        <pathelement location="${platform.build.dir}/classes/services" />
+        <pathelement location="${platform.build.dir}/classes/tools" />
+        <pathelement location="${platform.build.dir}/classes/test" />
+        <pathelement location="${build.dir}/classes/common" />
+        <pathelement location="${build.dir}/classes/service" />
+        <pathelement location="${build.dir}/classes/web" />
+        <pathelement location="${build.dir}/classes/tools" />
+        <pathelement location="${build.dir}/classes/test" />
+        <pathelement location="${src}/common" />
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${platform.lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+	<!-- =================================================================== -->
+	<!-- Classpaths                                                          -->
+	<!-- =================================================================== -->
+
+	<!-- Project Classpath -->
+	<!--
+	<path id="project.classpath">
+		<pathelement location="${build.dir}/classes/common" />
+		<pathelement location="${build.dir}/classes/service" />
+		<pathelement location="${build.dir}/classes/web" />
+		<pathelement location="${build.dir}/classes/services" />
+		<pathelement location="${build.dir}/classes/tools" />
+		<pathelement location="${build.dir}/classes/test" />
+		<pathelement location="${src}/common" />
+		<fileset dir="${lib.dir}" includes="**/*.jar" />
+	</path>
+-->
+	<path id="all.sources">
+		<pathelement path="src/common" />
+		<pathelement path="src/service" />
+		<pathelement path="src/web" />
+		<pathelement path="src/services" />
+		<pathelement path="src/test" />
+	</path>
+
+	<property name="inheritAll" value="true" />
+
+</project>

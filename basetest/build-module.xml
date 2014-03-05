@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	
+	<import file="${platform.root.dir}/properties.xml"/>
+	
+	<!--Deployment-->    
+	
+	<!-- =================================================================== -->
+    <!-- Distribute the  applications in the non-packaged format. -->
+    <!-- =================================================================== -->
+    
+    <target name="dist-web" depends="copy-web" >
+        
+        <copy todir="${tomcat.deploy}/${webapp.war}" overwrite="true">
+            <fileset dir="${webapp.target}">
+        	</fileset>
+        </copy>
+
+    </target>
+	
+
+    <!--Prepare deployment package for production environment-->
+	<!--All configuration value won't be replaced-->
+    <target name="prepare-deploypackage" depends="package-web-unfilter" if="tomcat.home"
+                description="Prepare unfiltered package for deployment">
+        
+        <copy todir="${platform.dist.dir}" overwrite="true">
+            <fileset dir="${build.dir}">
+                <include name="${webapp.war}.war"/>
+            </fileset>
+        </copy>
+
+    </target>
+    
+    <!-- =================================================================== -->
+    <!-- The "deploy-xxxx" target deploys the application by packaging it as  -->
+    <!-- a WAR or EAR and then unpackaging it into Application Server's deploy directory       -->
+    <!-- =================================================================== -->
+    
+    <target name="deploy-web" depends="package-web" if="tomcat.home"
+                description="unwar into the servlet container's deployment directory">
+        
+        
+        <copy todir="${tomcat.deploy}" overwrite="true">
+            <fileset dir="${build.dir}">
+                <include name="${webapp.war}.war"/>
+            </fileset>
+        </copy>
+        
+
+    </target>
+	
+	<!--Package-->
+    
+    <target name="package-web" depends="copy-web" description="Package WAR">
+        
+        <war warfile="${build.dir}/${webapp.war}.war" 
+                webxml="${webapp.target}/WEB-INF/web.xml" >
+            
+            <fileset dir="${webapp.target}"/>
+        </war>
+        
+    </target>
+    
+    <target name="package-web-unfilter" depends="copy-web-unfilter" description="WAR">
+        <war warfile="${build.dir}/${webapp.war}.war" 
+                webxml="${webapp.target.unfilter}/WEB-INF/web.xml" >
+            
+            <fileset dir="${webapp.target.unfilter}"/>
+        </war>
+    </target>
+	
+	<!--Copy-->
+
+    <target name="copy-web">
+        <enginetask target="copy-web"/>
+    </target>
+    
+    <target name="copy-web-unfilter">
+        <enginetask target="copy-web-unfilter"/>
+    </target>
+	
+	<!--Compile-->
+
+    <target name="compile-web">
+        <enginetask target="compile-web"/>
+    </target>
+	
+    <target name="compile-all">
+        <enginetask target="compile-all"/>
+    </target>
+	
+	<!--Misc-->
+    <target name="prepare">
+        <enginetask target="prepare"/>
+    </target>
+    
+    <target name="clean-all" description="Clean all assets">
+        <enginetask target="clean-all"/>
+    </target>
+	
+	<!--Macro definition-->
+    <macrodef name="enginetask">
+        <attribute name="target"/>
+
+        <sequential>
+        	<!--Process task for engine-->
+            <echo>@{target} ${project.name}...</echo>
+            <subant target="@{target}">
+                <property name="basedir" value="${basedir}" />
+                <property name="copy.overwrite" value="true" />
+            	<property name="platform.root.dir" value="${platform.root.dir}"/>
+                <fileset dir="${platform.root.dir}" includes="build-core.xml"/>
+            </subant>
+            <echo>Done</echo>
+        </sequential>
+    </macrodef>
+    
+	<!-- Test -->
+    <target name="test" depends="compile-all">
+    	<subant target="test">
+    	    <property name="basedir" value="${basedir}" />
+        	<property name="platform.root.dir" value="${platform.root.dir}"/>
+    	    <fileset dir="${platform.root.dir}" includes="build.xml"/>
+    	</subant>
+    </target>
+    
+    <target name="test-report" depends="compile-all">
+        <subant target="test-report">
+            <property name="basedir" value="${basedir}" />
+        	<property name="platform.root.dir" value="${platform.root.dir}"/>
+            <fileset dir="${platform.root.dir}" includes="build.xml"/>
+        </subant>
+    </target>
+	
+	<target name="coverageReport" depends="compile-all, copy-web">
+         <subant target="coverageReport">
+            <property name="basedir" value="${basedir}" />
+        	<property name="platform.root.dir" value="${platform.root.dir}"/>
+            <fileset dir="${platform.root.dir}" includes="build.xml"/>
+         </subant>
+    </target>
+	
+	<target name="syncAllSDK">
+	   	<subant target="syncAllSDK">
+	   		<property name="sdk.include" value="${sdk.include}" />
+	   		
+	   		<fileset dir="${platform.root.dir}" includes="build.xml"/>
+	   	</subant>
+	</target>
+
+</project>
+

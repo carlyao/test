@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+	<properties fileName="init_gameserver.properties"/>
+	<properties fileName="init.properties"/>
+	<properties fileName="init_gameserver_sc_ae_gp.properties"/>
+</configuration>

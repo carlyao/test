@@ -1,0 +1,1532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="platform" default="package-web">
+    <import file="properties.xml"/>
+    
+    <!--  ==================================================================
+    -->
+    <import file="${platform.root.dir}/filter.xml"/>
+    
+    
+    <echo message="======================================================"/>
+    <echo message="Starting build."/>
+    <echo message="Deployment Environment is ::: ${deploy_target}"/>
+    <echo message="If this is not correct please configure it properly."/>
+    <echo message="======================================================"/>
+	
+    
+    
+    <!--  ==================================================================-->
+    <!--  Removes all created files and directories-->
+    <!--  ==================================================================-->
+    
+    <target name="clean-build">
+        <delete dir="build"/>
+        <delete dir="dist"/>
+    </target>
+    
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+    
+    <target name="clean-web">
+        <delete dir="${tomcat.deploy}/${webapp.war}" />
+    </target>
+    
+    <target name="clean-services">
+        <delete dir="${jboss.deploydir}/${servicesapp.ear}" />
+    </target>
+    
+    <target name="clean-all">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        
+    	<delete dir="${tomcat.deploy}/${webapp.war}" />
+        <delete dir="${jboss.deploydir}/${servicesapp.ear}" />
+        
+        <delete dir="${instrumented.dir}" />
+        <delete dir="${coverage.xml.dir}" />
+        <delete dir="${coverage.summaryxml.dir}" />
+        <delete dir="${coverage.html.dir}" />
+        
+    	<delete file="${tomcat.deploy}/${webapp.war}.war" />
+    	
+        <delete file="cobertura.log" />
+        <delete file="cobertura.ser" />
+    </target>
+	
+	<target name="clean-all-modules">
+        <sequential>
+            <subant target="clean-all">
+                <fileset dir="..">
+                    <include name="*/build.xml"/>
+                    <exclude name="platform/build.xml"/>
+                    <exclude name="JasperServerReporting/build.xml"/>
+                    <exclude name="**/AS3/**/build.xml"/>
+                    <exclude name="**/ThirdParty/**/build.xml"/>
+                    <exclude name="**/Matchmaking/**/build.xml"/>
+            	</fileset>
+            </subant>
+        </sequential>
+	</target>
+    
+
+<!--  Makes sure the needed directory structure is in place
+-->
+<!--  ==================================================================
+-->
+    <target name="prepare">
+        <mkdir dir="${servicesapp.target}"/>
+        <mkdir dir="${servicesapp.target}/META-INF"/>
+        <mkdir dir="${servicesapp.target}/common/classes"/>
+        <mkdir dir="${servicesapp.target}/common/lib"/>
+        <mkdir dir="${servicesapp.target}/ejb"/>
+        <mkdir dir="${servicesapp.target}/ejb/classes"/>
+        <mkdir dir="${servicesapp.target}/ejb/META-INF"/>
+        <mkdir dir="${servicesapp.target}/war"/>
+        <mkdir dir="${servicesapp.target}/war/files"/>
+        <mkdir dir="${servicesapp.target}/war/classes"/>
+        <mkdir dir="${servicesapp.target}/war/META-INF"/>
+        <mkdir dir="${servicesapp.target}/war/WEB-INF"/>
+    </target>
+	
+
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+        	<path refid="project.classpath"/>
+        </classpath>
+    </taskdef>
+
+	
+	<macrodef name="syncSDK">
+        <attribute name="modulePath"/>
+		
+		<sequential>
+			<echo>Sync @{modulePath}...</echo>
+            <!--Copy VOs under web-->
+            <copy todir="${sdk.src.dir}/web" failonerror="false">
+                <fileset dir="${platform.root.dir}/../@{modulePath}/src/web">
+                    <include name="**/vo/**/*.java"/>
+                </fileset>
+            </copy>
+            <!--Copy POs under service-->
+            <copy todir="${sdk.src.dir}/service" failonerror="false">
+                <fileset dir="${platform.root.dir}/../@{modulePath}/src/service">
+                    <include name="**/model/*.java"/>
+                    <include name="**/vo/**/*.java"/>
+                </fileset>
+            </copy>
+		</sequential>
+	</macrodef>
+	
+	<target name="syncAllSDK">
+		<if>             
+			<equals arg1="${sdk.include}" arg2="true" />
+			<then>
+        		<syncSDK modulePath="ProgressionEngine"/>
+                <syncSDK modulePath="AccomplishmentEngine"/>
+                <syncSDK modulePath="AccountEngine"/>
+                <syncSDK modulePath="CharacterEngine"/>
+                <syncSDK modulePath="ItemEngine"/>
+                <syncSDK modulePath="MessageEngine"/>
+                <syncSDK modulePath="MissionEngine"/>
+                <syncSDK modulePath="WalletEngine"/>
+                <syncSDK modulePath="AuthenticationEngine"/>
+                <syncSDK modulePath="GuildEngine"/>
+                <syncSDK modulePath="SocialNetworkEngine"/>
+				<syncSDK modulePath="TelemetryEngine"/>
+				<syncSDK modulePath="PaymentProviderEngine"/>
+			</then>
+		</if>
+	</target>
+
+    <!-- =================================================================== -->
+    <!-- Compile   -->
+    <!-- =================================================================== -->
+    
+    <macrodef name="compile">
+        <attribute name="module"/>
+        <element name="options" optional="yes"/>
+
+        <sequential>
+            <echo>Compiling @{module}...</echo>
+            <mkdir dir="${build.dir}/classes/@{module}"/>
+            <javac srcdir="${src}/@{module}"
+                destdir="${build.dir}/classes/@{module}" debug="${compile.debug}"
+                deprecation="${compile.deprecation}" optimize="${compile.optimize}"
+                classpathref="project.classpath">
+                <options/>
+            </javac>
+        	<!--Complie SDK if needed-->
+            <if>            	
+            	<equals arg1="${sdk.include}" arg2="true" />
+                <then>
+                	<echo>Compiling SDK...</echo>
+                	<javac srcdir="${sdk.src.dir}/@{module}"
+                        destdir="${build.dir}/classes/@{module}" debug="${compile.debug}"
+                        deprecation="${compile.deprecation}" optimize="${compile.optimize}"
+                        classpathref="project.classpath">
+                        <options/>
+                    </javac>
+                </then>
+            </if>
+            <echo>Done</echo>
+        </sequential>
+    </macrodef>
+    
+    <target name="compile-common" depends="prepare, syncAllSDK" description="Compile dao module">
+        <compile module="common"/>
+    </target>
+    
+    <target name="compile-service" depends="compile-common" description="Compile service module">
+        <compile module="service"/>
+    </target>
+
+    <target name="compile-web" depends="compile-common, compile-service" description="Compile web module">
+        <compile module="web"/>
+    </target>
+	
+    <target name="check-services" description="Check services folder exists or not">
+        <condition property="servicesExists">
+        	<and>
+        	    <available file="${src}/@{module}"/>
+        	</and>
+    	</condition>
+    </target>
+    
+    <target name="compile-services" depends="compile-common, compile-service, check-services" if="check-services" description="Compile services module">
+        <compile module="services"/>
+    </target>
+    
+    <target name="compile-tools" depends="compile-common, compile-service, compile-web, compile-services" description="Compile test module">
+        <compile module="tools"/>
+    </target>
+
+    <target name="compile-test" depends="compile-common, compile-service, compile-web, compile-services, compile-tools" description="Compile test cases">
+        <compile module="test"/>
+    </target>
+    
+    <target name="compile-all" depends="compile-common, compile-service, compile-web, compile-services, compile-tools, compile-test" description="Compile all modules"/>
+    
+    <!-- =================================================================== -->
+    <!-- Package  Web -->
+    <!-- =================================================================== -->
+
+    <!-- Simple alias to package-web -->
+    <target name="war" depends="package-web" description="alias for package-web"/>
+    
+    <target name="copy-web" depends="compile-web" description="Copy WAR structure">
+        <copy todir="${webapp.target}/WEB-INF" overwrite="${copy.overwrite}">
+            <fileset dir="${web.dir}/WEB-INF">
+                <include name="*"/>
+            </fileset>
+            <filterset refid="variables.to.replace"/> 
+        </copy>
+        
+        <!-- copy etc files for ext, sport, and base -->
+        <copy todir="${webapp.target}/META-INF" overwrite="${copy.overwrite}">
+            <fileset dir="${etc.dir}/META-INF">
+                <include name="spring-datasource-local.xml"/>
+                <include name="spring-ext.xml"/>
+                <include name="spring-ext-account.xml"/>
+                <include name="spring-ext-character.xml"/>
+                <include name="spring-ext-accomplishment.xml"/>
+                <include name="spring-ext-authentication.xml"/>
+                <include name="spring-ext-item.xml"/>
+                <include name="spring-ext-message.xml"/>
+                <include name="spring-ext-mission.xml"/>
+                <include name="spring-ext-progression.xml"/>
+                <include name="spring-ext-ranking.xml"/>
+                <include name="spring-ext-guild.xml"/>
+                <include name="spring-ext-wallet.xml"/>
+                <include name="spring-ext-socailnetwork.xml"/>
+            	<include name="spring-ext-payment.xml"/>
+                <include name="spring-misc.xml"/>
+                <include name="spring-base.xml"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF/generated">
+                <include name="*"/>
+                <exclude name="hbm-*.xml"/>
+            </fileset>
+            <filterset refid="variables.to.replace"/>
+            <filterset refid="db.variables"/>
+        </copy>
+        
+        <!-- copy WEB-INF/classes files for ext, sport, and base -->
+        <copy todir="${webapp.target}/WEB-INF/classes" overwrite="${copy.overwrite}" encoding="iso-8859-1">
+            <fileset dir="${web.dir}/WEB-INF/classes">
+                <include name="*.properties"/>
+                <include name="*.xml"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF/generated">
+                <include name="hbm-*.xml"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF">
+                <include name="hbm-base.xml"/>
+            </fileset>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <!-- copy config files for ext, sport, and base -->
+        <copy todir="${webapp.target}/WEB-INF/classes" overwrite="${copy.overwrite}">
+            <fileset dir="${config.dir}">
+                <include name="config*.xml"/>
+                <include name="init*.properties"/>
+                <include name="**/*.csv"/>
+            </fileset>
+            <filterset refid="config.variables.to.replace"/>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <!-- copy class files -->
+        <copy todir="${webapp.target}/WEB-INF/classes" overwrite="${copy.overwrite}">
+            <fileset dir="${build.dir}/classes/common">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="${build.dir}/classes/service">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="${build.dir}/classes/web">
+                <include name="**/*.class"/>
+            </fileset>
+        </copy>
+    	
+    	<!-- copy freemarker template files -->
+    	<copy todir="${webapp.target}/WEB-INF/classes" overwrite="${copy.overwrite}">
+            <fileset dir="${src}/web">
+                <include name="**/*.ftl"/>
+            </fileset>
+    	</copy>
+        
+    	<!-- copy velocity template files -->
+    	<copy todir="${webapp.target}/WEB-INF/classes" overwrite="${copy.overwrite}">
+            <fileset dir="${web.dir}/WEB-INF/classes">
+                <include name="*.vm"/>
+            </fileset>
+    	</copy>
+        
+        <!-- Copy JSP, CSS, Images, JS, etc. -->
+        <copy todir="${webapp.target}" includeEmptyDirs="yes" overwrite="${copy.overwrite}" encoding="ISO-8859-1">
+            <fileset dir="${web.dir}">
+                <include name="**"/>
+                <exclude name="WEB-INF/**"/>
+            </fileset>
+            <filterset refid="variables.to.replace" />
+        </copy>
+        
+        <copy todir="${webapp.target}/WEB-INF/lib" overwrite="${copy.overwrite}">
+            <fileset dir="${ant.dir}" includes="*.jar" />
+            <fileset dir="${castor.dir}" includes="*.jar" />
+            <fileset dir="${database.dir}" includes="*.jar" />
+            <fileset dir="${ehcache.dir}" includes="*.jar" />
+            <fileset dir="${facebook.dir}" includes="*.jar" />
+            <fileset dir="${hibernate.dir}" includes="*.jar" />
+            <fileset dir="${jakarta-commons.dir}" includes="*.jar" />
+            <fileset dir="${javamail.dir}" includes="*.jar" />
+            <fileset dir="${logging.dir}" includes="*.jar" />
+            <fileset dir="${memcached.dir}" includes="*.jar" />
+            <fileset dir="${qdox.dir}" includes="*.jar" />
+            <fileset dir="${quartz.dir}" includes="*.jar" />
+            <fileset dir="${spring.dir}" includes="*.jar" excludes="*mock.jar" />
+            <fileset dir="${velocity.dir}" includes="*.jar" />
+            <fileset dir="${json.dir}" includes="*.jar" />
+            <fileset dir="${urlrewrite.dir}" includes="*.jar" />
+            <fileset dir="${cglib.dir}" includes="*.jar" />
+            <fileset dir="${xml.dir}" includes="*.jar" />
+            <fileset dir="${aspect.dir}" includes="*.jar" />
+            <fileset dir="${httpclient.dir}" includes="*.jar" />
+        </copy>
+    	
+    	<!-- copy struts2 result page files -->
+    	<copy todir="${webapp.target}/WEB-INF" overwrite="${copy.overwrite}">
+            <fileset dir="${web.dir}/WEB-INF">
+                <include name="content/**"/>
+                <include name="plot/**"/>
+            		<include name="fusionCharts/**"/>
+            </fileset>
+    	</copy>
+    </target>
+    
+    <target name="copy-web-unfilter" depends="compile-web" description="Copy WAR structure">
+        <copy todir="${webapp.target.unfilter}/WEB-INF" overwrite="${copy.overwrite}">
+            <fileset dir="${web.dir}/WEB-INF">
+                <include name="*"/>
+            </fileset>
+        </copy>
+        <copy todir="${webapp.target.unfilter}/WEB-INF/tld" overwrite="${copy.overwrite}">
+            <fileset dir="${web.dir}/WEB-INF/tld">
+                <include name="*.tld"/>
+            </fileset>
+        </copy>
+        
+        <!-- copy etc files for ext, sport, and base -->
+        <copy todir="${webapp.target.unfilter}/META-INF" overwrite="${copy.overwrite}">
+            <fileset dir="${etc.dir}/META-INF">
+                <include name="spring-datasource-local.xml"/>
+                <include name="spring-ext.xml"/>
+                <include name="spring-misc.xml"/>
+                <include name="spring-ext-account.xml"/>
+                <include name="spring-ext-character.xml"/>
+                <include name="spring-ext-accomplishment.xml"/>
+                <include name="spring-ext-authentication.xml"/>
+                <include name="spring-ext-item.xml"/>
+                <include name="spring-ext-message.xml"/>
+                <include name="spring-ext-mission.xml"/>
+                <include name="spring-ext-progression.xml"/>
+                <include name="spring-ext-ranking.xml"/>
+                <include name="spring-ext-guild.xml"/>
+                <include name="spring-ext-wallet.xml"/>
+                <include name="spring-ext-socailnetwork.xml"/>
+            	<include name="spring-ext-payment.xml"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF/generated">
+                <include name="*"/>
+                <exclude name="hbm-*.xml"/>
+            </fileset>
+        </copy>
+        
+        <!-- copy WEB-INF/classes files for ext, sport, and base -->
+        <copy todir="${webapp.target.unfilter}/WEB-INF/classes" overwrite="${copy.overwrite}">
+            <fileset dir="${web.dir}/WEB-INF/classes">
+                <include name="*.properties"/>
+                <include name="*.xml"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF/generated">
+                <include name="hbm-*.xml"/>
+            </fileset>
+        </copy>
+        
+        <!-- copy config files for ext, sport, and base -->
+        <copy todir="${webapp.target.unfilter}/WEB-INF/classes" overwrite="${copy.overwrite}">
+            <fileset dir="${config.dir}">
+                <include name="config*.xml"/>
+                <include name="init*.properties"/>
+                <include name="**/*.csv"/>
+            </fileset>
+        </copy>
+        
+        <!-- copy class files -->
+        <copy todir="${webapp.target.unfilter}/WEB-INF/classes" overwrite="${copy.overwrite}">
+            <fileset dir="${build.dir}/classes/common">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="${build.dir}/classes/service">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="${build.dir}/classes/web">
+                <include name="**/*.class"/>
+            </fileset>
+        </copy>
+    	
+    	<!-- copy freemarker template files -->
+        <copy todir="${webapp.target}/WEB-INF/classes" overwrite="${copy.overwrite}">
+            <fileset dir="${src}/web">
+                <include name="**/*.ftl"/>
+            </fileset>
+        </copy>
+    	
+        <!-- Copy JSP, CSS, Images, JS, etc. -->
+        <copy todir="${webapp.target.unfilter}" includeEmptyDirs="yes" overwrite="${copy.overwrite}">
+            <fileset dir="${web.dir}">
+                <include name="**"/>
+                <exclude name="WEB-INF/**"/>
+            </fileset>
+        </copy>
+        
+        <copy todir="${webapp.target.unfilter}/WEB-INF/lib" overwrite="${copy.overwrite}">
+            <fileset dir="${ant.dir}" includes="*.jar" />
+            <fileset dir="${castor.dir}" includes="*.jar" />
+            <fileset dir="${database.dir}" includes="*.jar" />
+            <fileset dir="${ehcache.dir}" includes="*.jar" />
+            <fileset dir="${facebook.dir}" includes="*.jar" />
+            <fileset dir="${hibernate.dir}" includes="*.jar" />
+            <fileset dir="${jakarta-commons.dir}" includes="*.jar" />
+            <fileset dir="${javamail.dir}" includes="*.jar" />
+            <fileset dir="${jstl.dir}" includes="*.jar" />
+            <fileset dir="${logging.dir}" includes="*.jar" />
+            <fileset dir="${memcached.dir}" includes="*.jar" />
+            <fileset dir="${qdox.dir}" includes="*.jar" />
+            <fileset dir="${quartz.dir}" includes="*.jar" />
+            <fileset dir="${sitemesh.dir}" includes="*.jar" />
+            <fileset dir="${spring.dir}" includes="*.jar" excludes="*mock.jar" />
+            <fileset dir="${velocity.dir}" includes="*.jar" />
+            <fileset dir="${json.dir}" includes="*.jar" />
+            <fileset dir="${urlrewrite.dir}" includes="*.jar" />
+            <fileset dir="${cglib.dir}" includes="*.jar" />
+            <fileset dir="${xml.dir}" includes="*.jar" />
+            <fileset dir="${aspect.dir}" includes="*.jar" />
+            <fileset dir="${httpclient.dir}" includes="*.jar" />
+            <fileset dir="${struts2.dir}" includes="*.jar" />
+        	<fileset dir="${poi.dir}" includes="*.jar" />
+        	<fileset dir="${jasperreport.dir}" includes="*.jar" />
+        </copy>
+    </target>
+    
+    <target name="package-web" depends="copy-web" description="Package WAR">
+        
+        <war warfile="${build.dir}/${webapp.war}.war" 
+                webxml="${webapp.target}/WEB-INF/web.xml" >
+            
+            <fileset dir="${webapp.target}"/>
+        </war>
+        
+        
+        <!--war warfile="${build.dir}/${webapp.war}" 
+                webxml="${webapp.target}/WEB-INF/web.xml" >
+            
+            <fileset dir="${webapp.target}"/>
+            
+            <webinf dir="${webapp.target}/WEB-INF"/>
+            <metainf dir="${webapp.target}/META-INF" />
+            <lib dir="${webapp.target}/WEB-INF/lib">
+                <include name="*.jar"/>
+            </lib>
+            <classes dir="${webapp.target}/WEB-INF/classes"/>
+            
+        </war-->
+        
+    </target>
+    
+    <!-- =================================================================== -->
+    <!-- Package  Services -->
+    <!-- =================================================================== -->
+    
+    <!-- Simple alias to package-web -->
+    <target name="services" depends="package-services" description="alias for package-services"/>
+    
+    <target name="services-lib" depends="compile-services">
+        <copy todir="${servicesapp.target}/common/classes" overwrite="true">
+            <fileset dir="${build.dir}/classes/common">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="${build.dir}/classes/service">
+                <include name="**/*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${servicesapp.target}/common/lib" overwrite="true">
+            <fileset dir="${castor.dir}" includes="*.jar" />
+            <fileset dir="${database.dir}" includes="*.jar" />
+            <fileset dir="${ehcache.dir}" includes="*.jar" />
+            <fileset dir="${hibernate.dir}" includes="*.jar" />
+            <fileset dir="${jakarta-commons.dir}" includes="*.jar" />
+            <fileset dir="${javamail.dir}" includes="*.jar" />
+            <fileset dir="${logging.dir}" includes="*.jar" />
+            <fileset dir="${memcached.dir}" includes="*.jar" />
+            <fileset dir="${qdox.dir}" includes="*.jar" />
+            <fileset dir="${quartz.dir}" includes="*.jar" />
+            <fileset dir="${cglib.dir}" includes="*.jar" />
+            <fileset dir="${spring.dir}" includes="*.jar" excludes="*mock.jar" />
+            <fileset dir="${xml.dir}" includes="*.jar" />
+        </copy>
+    </target>
+    
+    <path id="services.classpath">
+        <fileset dir="${castor.dir}" includes="*.jar" />
+        <fileset dir="${database.dir}" includes="*.jar" />
+        <fileset dir="${ehcache.dir}" includes="*.jar" />
+        <fileset dir="${hibernate.dir}" includes="*.jar" />
+        <fileset dir="${jakarta-commons.dir}" includes="*.jar" />
+        <fileset dir="${javamail.dir}" includes="*.jar" />
+        <fileset dir="${logging.dir}" includes="*.jar" />
+        <fileset dir="${memcached.dir}" includes="*.jar" />
+        <fileset dir="${qdox.dir}" includes="*.jar" />
+        <fileset dir="${quartz.dir}" includes="*.jar" />
+        <fileset dir="${cglib.dir}" includes="*.jar" />
+        <fileset dir="${spring.dir}" includes="*.jar" excludes="*mock.jar" />
+        <!--<fileset dir="${xml.dir}" includes="*.jar" />-->
+    </path>
+    
+    <pathconvert property="services.manifest.classpath"  pathsep=" ">
+        <path refid="services.classpath"/>
+        <flattenmapper/>
+    </pathconvert>
+    
+    <target name="services-ejb" depends="services-lib">
+        <manifest  file="${servicesapp.target}/ejb/META-INF/MANIFEST.MF">
+            <attribute name="Class-Path" value="${services.manifest.classpath}" />
+        </manifest>
+        
+        <copy todir="${servicesapp.target}/ejb/META-INF" overwrite="true">
+            <fileset dir="${etc.dir}/META-INF">
+                <include name="spring-datasource.xml"/>
+                <include name="spring-defs.xml"/>
+                <include name="spring-ext.xml"/>
+                <include name="spring-misc.xml"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF/generated">
+                <include name="*"/>
+                <exclude name="hbm-base.xml"/>
+            </fileset>
+            <filterset refid="db.variables"/>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <copy todir="${servicesapp.target}/ejb/classes" overwrite="true">
+            <fileset dir="${servicesapp.target}/common/classes">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="${build.dir}/classes/services">
+                <include name="**/*.class"/>
+                <exclude name="**/job/**/*.class"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF/generated">
+                <include name="hbm-base.xml"/>
+            </fileset>
+        </copy>
+        
+        <!-- copy WEB-INF/classes files for ext, sport, and base -->
+        <copy todir="${servicesapp.target}/ejb/classes" overwrite="true">
+            <fileset dir="${web.dir}/WEB-INF/classes">
+                <include name="ehcache.xml"/>
+                <include name="mail.properties"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF">
+                <include name="beanRefContext.xml"/>
+            </fileset>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <!-- copy config files for ext, sport, and base -->
+        <copy todir="${servicesapp.target}/ejb/classes" overwrite="true">
+            <fileset dir="${config.dir}">
+                <include name="config*.xml"/>
+                <include name="init*.properties"/>
+            </fileset>
+            <filterset refid="config.variables.to.replace"/>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <jar jarfile="${servicesapp.target}/${servicesapp-ejb.jar}"
+                manifest="${servicesapp.target}/ejb/META-INF/MANIFEST.MF">
+            <metainf dir="${servicesapp.target}/ejb/META-INF"/>
+            <fileset dir="${servicesapp.target}/ejb/classes"/>
+        </jar>
+    </target>
+    
+    <target name="services-war" depends="services-ejb">
+        <manifest  file="${servicesapp.target}/war/META-INF/MANIFEST.MF">
+            <attribute name="Class-Path" value="${services.manifest.classpath}" />
+        </manifest>
+        
+        <copy todir="${servicesapp.target}/war/files" overwrite="true">
+            <fileset dir="${services-config.dir}/web">
+                <include name="*.jsp"/>
+            </fileset>
+        </copy>
+        
+        <copy todir="${servicesapp.target}/war/META-INF" overwrite="true">
+            <fileset dir="${etc.dir}/META-INF">
+                <include name="spring-jobs.xml"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF">
+                <include name="${spring-jobs-schedule}"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF">
+                <include name="spring-datasource.xml"/>
+                <include name="spring-ext.xml"/>
+                <include name="spring-jms.xml"/>
+                <include name="spring-misc.xml"/>
+            </fileset>
+            <fileset dir="${etc.dir}/META-INF/generated">
+                <include name="*"/>
+                <exclude name="hbm-base.xml"/>
+            </fileset>
+            <filterset refid="db.variables"/>
+        </copy>
+        
+        <copy todir="${servicesapp.target}/war/WEB-INF" overwrite="true">
+            <fileset dir="${services-config.dir}/web/WEB-INF">
+                <include name="*"/>
+            </fileset>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <copy todir="${servicesapp.target}/war/classes" overwrite="true">
+            <fileset dir="${servicesapp.target}/common/classes">
+                <include name="**/*.class"/>
+            </fileset>
+            <fileset dir="${build.dir}/classes/services">
+                <include name="**/*.class"/>
+                <exclude name="**/mdb/**/*.class"/>
+            </fileset>
+        </copy>
+        
+        <copy todir="${servicesapp.target}/war/classes" overwrite="true">
+            <fileset dir="${etc.dir}/META-INF/generated">
+                <include name="hbm-base.xml"/>
+            </fileset>
+            <fileset dir="${web.dir}/WEB-INF/classes">
+                <include name="ehcache.xml"/>
+                <include name="mail.properties"/>
+            </fileset>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <!-- copy config files for ext, sport, and base -->
+        <copy todir="${servicesapp.target}/war/classes" overwrite="true">
+            <fileset dir="${config.dir}">
+                <include name="config*.xml"/>
+                <include name="init*.properties"/>
+            </fileset>
+            <filterset refid="config.variables.to.replace"/>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <war warfile="${servicesapp.target}/${servicesapp.war}" 
+                webxml="${servicesapp.target}/war/WEB-INF/web.xml"
+                manifest="${servicesapp.target}/war/META-INF/MANIFEST.MF">
+            
+            <fileset dir="${servicesapp.target}/war/files"/>
+            <webinf dir="${servicesapp.target}/war/WEB-INF"/>
+            <metainf dir="${servicesapp.target}/war/META-INF"/>
+            <classes dir="${servicesapp.target}/war/classes" />
+        </war>
+    </target>
+    
+    <target name="package-services" depends="services-war" description="Package Services">
+        
+        <copy todir="${servicesapp.target}/META-INF" overwrite="true">
+            <fileset dir="${services-config.dir}/application/META-INF">
+                <include name="*"/>
+            </fileset>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <copy todir="${servicesapp.target}" overwrite="true">
+            <fileset dir="${services-config.dir}">
+                <include name="log4j.xml"/>
+            </fileset>
+            <filterset refid="variables.to.replace"/>
+        </copy>
+        
+        <ear destfile="${servicesapp.target}/${servicesapp.ear}" 
+                appxml="${servicesapp.target}/META-INF/application.xml">
+            
+            <metainf dir="${servicesapp.target}/META-INF" />
+            
+            <fileset dir="${servicesapp.target}/common/lib">
+                <include name="*.jar"/>
+                <include name="*.zip"/>
+            </fileset>
+            
+            <!-- add property files here -->
+            <fileset dir="${servicesapp.target}">
+                <include name="*.xml"/>
+            </fileset>  
+        </ear>
+        
+    </target>
+    
+    <!-- =================================================================== -->
+    <!-- Distribute the  applications in the non-packaged format. -->
+    <!-- =================================================================== -->
+    
+    <target name="dist-web" depends="copy-web" >
+        
+        <copy todir="${tomcat.deploy}/${webapp.war}" overwrite="true">
+            <fileset dir="${webapp.target}"/>
+        </copy>
+        <!--
+        <unwar src="${build.dir}/${webapp.war}"  dest="${webapp.dist}/${webapp.war}"/>
+        -->
+
+    </target>
+    
+    <target name="dist-services" depends="package-services" >
+
+        <unjar src="${servicesapp.target}/${servicesapp.ear}"  dest="${servicesapp.dist}/${servicesapp.ear}"/>
+        <unwar src="${servicesapp.target}/${servicesapp.war}"  dest="${servicesapp.dist}/${servicesapp.ear}/${servicesapp.war}"/>
+        <unjar src="${servicesapp.target}/${servicesapp-ejb.jar}"  dest="${servicesapp.dist}/${servicesapp.ear}/${servicesapp-ejb.jar}"/>
+        
+    </target>
+
+    <!-- =================================================================== -->
+    <!--            Refresh - Stops App Server, and refreshes everything         -->
+    <!-- =================================================================== -->
+    
+    <target name="refresh-web" depends="clean-web, deploy-web"
+        description="Undeploys, cleans, then re-deploys"/>
+    
+    <target name="refresh-services" depends="clean-services, deploy-services"
+        description="Undeploys, cleans, then re-deploys"/>
+
+    <!-- =================================================================== -->
+    <!-- The "deploy-xxxx" target deploys the application by packaging it as  -->
+    <!-- a WAR or EAR and then unpackaging it into Application Server's deploy directory       -->
+    <!-- =================================================================== -->
+    
+    <target name="deploy-web" depends="package-web" if="tomcat.home"
+                description="unwar into the servlet container's deployment directory">
+        
+        <copy todir="${tomcat.deploy}" overwrite="true">
+            <fileset dir="${build.dir}">
+                <include name="${webapp.war}.war"/>
+            </fileset>
+        </copy>
+        
+
+    </target>
+    
+    <!-- this should never be called directly but always from deploy-services-master or slave-->
+    <target name="deploy-services" depends="dist-services" if="jboss.home"
+        description="unjar into the application server's deployment directory">
+
+        <copy todir="${jboss.deploydir}/${servicesapp.ear}" overwrite="true">
+            <fileset dir="${servicesapp.dist}/${servicesapp.ear}"/>
+        </copy>
+        
+        <touch file="${jboss.deploydir}/${servicesapp.ear}/META-INF/application.xml"/>
+
+    </target>
+    
+    <target name="deploy-services-master" >
+        <property name="spring-jobs-schedule" value="spring-jobs-schedule-master.xml"/>
+        <antcall target="deploy-services"/>
+    </target>
+    
+    <target name="deploy-services-worker" >
+        <property name="spring-jobs-schedule" value="spring-jobs-schedule-worker.xml"/>
+        <antcall target="deploy-services"/>
+    </target>
+    
+    <!-- =================================================================== -->
+    <!-- Redeploy only the JSP, CSS, JS, Images, etc. -->
+    <!-- =================================================================== -->
+
+    <target name="deployjsp-web">
+        <copy todir="${tomcat.deploy}/${webapp.war}" overwrite="true">
+            <fileset dir="${web.dir}">
+                    <include name="**"/>
+                    <exclude name="WEB-INF/**"/>
+             </fileset>
+        </copy>
+        <copy todir="${tomcat.deploy}/${webapp.war}/WEB-INF" overwrite="true">
+            <fileset dir="${web.dir}/WEB-INF">
+                    <include name="classes/ApplicationResources*"/>
+             </fileset>
+        </copy>
+    </target>
+    
+    <macrodef name="preparemodule">
+        <sequential>
+        	<!--Clean all-->
+            <subant target="clean-all">
+            	<!--Modify the fileset to include more engines if the engines are out of current folder-->
+                <fileset dir="..">
+                	<include name="**/build.xml"/>
+                	<exclude name="**/bin/**/build.xml"/>
+                	<exclude name="**/platform/build.xml"/>
+                	<exclude name="**/AS3/**/build.xml"/>
+        			<exclude name="**/ThirdParty/**/build.xml"/>
+                    <exclude name="**/Matchmaking/**/build.xml"/>
+                    <exclude name="**/ClientSDK/build.xml"/>
+                    <exclude name="**/JasperServerReporting/build.xml"/>
+                    <exclude name="build.xml"/>
+                </fileset>
+            </subant>
+        	<!--Call code generator to generate all code-->
+            <subant target="build-service-with-platform">
+            	<!--Modify the fileset to include more engines if the engines are out of current folder-->
+                <fileset dir="..">
+                	<include name="**/build-generator.xml"/>
+                	<exclude name="**/bin/**/build-generator.xml"/>
+                	<exclude name="**/platform/build-generator.xml"/>
+                    <exclude name="**/ClientSDK/build-generator.xml"/>
+                </fileset>
+            </subant>
+            <!--Prepare GmTool and TelemetryEngine war-->
+            <subant target="prepare-deploypackage">
+                <fileset dir="..">
+                	<include name="**/GmTool/build.xml"/>
+                	<include name="**/TelemetryEngine/build.xml"/>
+                </fileset>
+            </subant>
+            <!--Prepare global war-->
+        	<antcall target="package-global-war-unfilter" />
+            <!--Prepare game war-->
+            <antcall target="package-game-war-unfilter" />
+        </sequential>
+    </macrodef>
+    
+    <target name="prepare-deploy-folder">
+        <delete dir="dist"/>
+        <mkdir dir="dist"/>
+    </target>
+
+    <!-- Prepare deployment package for production environment-->
+    <target name="prepare-deploy-package" depends="prepare-deploy-folder">
+
+    	<!--Prepare each engine-->
+    	<preparemodule/>
+	
+        <copy todir="${dist.dir}" overwrite="true">
+            <fileset dir=".">
+                <include name="*.properties"/>
+                <include name="filter.xml"/>
+                <include name="properties.xml"/>
+                <include name="build-deploy.xml"/>
+                <include name="ConfigurationGuidance.txt"/>
+             </fileset>
+        </copy>
+        <copy todir="${dist.dir}">
+            <fileset dir="lib/ant">
+                <include name="ant-contrib-*.jar"/>
+             </fileset>
+        </copy>
+    	<!--rename-->
+        <move file="${dist.dir}/build-deploy.xml" tofile="${dist.dir}/build.xml"/>
+    </target>
+    
+    <taskdef classpathref="project.classpath" resource="tasks.properties"/>
+    
+    <target name="test" depends="compile-test">
+        <mkdir dir="${unit-report.dir}"/>
+        
+        <junit printsummary="yes" haltonfailure="no">
+          <classpath location="${instrumented.dir}" />
+          <classpath>
+            <path refid="project.classpath"/>
+            <pathelement location="${platform.lib.dir}/junit/junit-4.5.jar"/>
+            <pathelement location="${etc.dir}/META-INF"/>
+            <pathelement location="${etc.dir}/META-INF/generated"/>
+            <pathelement location="${platform.root.dir}/etc/META-INF"/>
+            <pathelement location="${platform.root.dir}/etc/META-INF/generated"/>
+            <pathelement location="${webapp.target}/WEB-INF/classes"/>
+          </classpath>
+
+          <batchtest fork="yes" todir="${unit-report.dir}">
+            <formatter type="xml"/>
+            <fileset dir="${src}/test">
+              <include name="**/*Test*.java"/>
+              <exclude name="**/Abstract*Test*.java"/>
+            </fileset>
+          </batchtest>
+        </junit>
+    </target>
+    
+    <target name="test-report" depends="test">
+        <junitreport todir="${test-report.dir}">
+            <fileset dir="${unit-report.dir}">
+                <include name="TEST-*.xml" />
+            </fileset>
+            <report format="frames" todir="${test-report.dir}" />
+        </junitreport>
+    </target>
+    
+    <target name="instrument" depends="copy-web">
+
+        <!--
+            Remove the coverage data file and any old instrumentation.
+        -->
+        <delete file="cobertura.ser"/>
+        <delete dir="${instrumented.dir}" />
+        
+        <mkdir dir="${instrumented.dir}" />
+        <mkdir dir="${coverage.xml.dir}" />
+        <mkdir dir="${coverage.summaryxml.dir}" />
+        <mkdir dir="${coverage.html.dir}" />
+
+            <!--
+                Instrument the application classes, writing the
+                instrumented classes into ${build.instrumented.dir}.
+            -->
+            <cobertura-instrument todir="${instrumented.dir}">
+                <!--
+                    The following line causes instrument to ignore any
+                    source line containing a reference to log4j, for the
+                    purposes of coverage reporting.
+                -->
+                <ignore regex="org.apache.log4j.*" />
+
+                <fileset dir="${build.dir}">
+                    <!--
+                        Instrument all the application classes, but
+                        don't instrument the test classes.
+                    -->
+                    <include name="**/*.class" />
+                    <exclude name="**/*Test.class" />
+                </fileset>
+            </cobertura-instrument>
+        </target>
+
+        <target name="coverage-check">
+            <cobertura-check branchrate="85" totallinerate="90" />
+        </target>
+
+        <target name="coverage-report">
+            <!--
+                Generate an XML file containing the coverage data using
+                the "srcdir" attribute.
+            -->
+            <cobertura-report destdir="${coverage.xml.dir}" format="xml" >
+                <fileset dir="${platform.src.dir}/service">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${platform.src.dir}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${platform.src.dir}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/service">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${sdk.src.dir}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${sdk.src.dir}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+            </cobertura-report>
+        </target>
+
+        <target name="summary-coverage-report">
+            <!--
+                Generate an summary XML file containing the coverage data using
+                the "srcdir" attribute.
+            -->
+            <cobertura-report destdir="${coverage.summaryxml.dir}" format="summaryXml" >
+                <fileset dir="${platform.src.dir}/service">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${platform.src.dir}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${platform.src.dir}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/service">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${sdk.src.dir}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${sdk.src.dir}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+            </cobertura-report>
+        </target>
+
+        <target name="alternate-coverage-report">
+            <!--
+                Generate a series of HTML files containing the coverage
+                data in a user-readable form using nested source filesets.
+            -->
+            <cobertura-report destdir="${coverage.html.dir}">
+                <fileset dir="${platform.src.dir}/service">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${platform.src.dir}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${platform.src.dir}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/service">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${src}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${sdk.src.dir}/common">
+                    <include name="**/*.java"/>
+                </fileset>
+                <fileset dir="${sdk.src.dir}/web">
+                    <include name="**/*.java"/>
+                </fileset>
+            </cobertura-report>
+        </target>
+
+        <target name="coverageReport" depends="instrument,test,coverage-report,summary-coverage-report,alternate-coverage-report" description="Compile, instrument ourself, run the tests and generate JUnit and coverage reports."/>
+
+		<!--Generate global schema init sql,if some sql are unnecessary you can comment them-->
+		<target name="generate-global-initsql">
+	        <concat destfile="${build.sql.dir}/init/global_init.sql" encoding="${default.locale}" outputencoding="${default.locale}">
+	        	<!-- Remote cache -->
+	            <path path="${platform.cachesql.dir}" />
+	            <path path="${platform.cachesql.data.dir}" />
+	        	<!-- Account Engine -->
+	            <path path="${account.tablesql.dir}" />
+	        	<path path="${account.indexsql.dir}" />
+	        	<!-- Authentication Engine -->
+	            <path path="${authentication.tablesql.dir}" />
+	        	<path path="${authentication.indexsql.dir}" />
+				<!-- Wallet Engine -->
+	            <path path="${wallet.tablesql.dir}" />
+	        	<path path="${wallet.indexsql.dir}" />
+	        </concat>
+		</target>
+	
+	    <!--Generate game schema init sql,if some sql are unnecessary you can comment them-->
+		<target name="generate-game-initsql">
+	        <concat destfile="${build.sql.dir}/init/game_init.sql" encoding="${default.locale}" outputencoding="${default.locale}">
+	        	<!-- Remote cache -->
+	            <path path="${platform.cachesql.dir}" />
+	            <path path="${platform.cachesql.data.dir}" />
+	        	<!-- Accomplishment Engine -->
+	            <path path="${accomplishment.tablesql.dir}" />
+	        	<path path="${accomplishment.indexsql.dir}" />
+	        	<!-- Item Engine -->
+	            <path path="${item.tablesql.dir}" />
+	        	<path path="${item.indexsql.dir}" />
+	        	<!-- Character Engine -->
+	            <path path="${character.tablesql.dir}" />
+	        	<path path="${character.indexsql.dir}" />
+	        	<!-- Guild Engine -->
+	            <path path="${guild.tablesql.dir}" />
+	        	<path path="${guild.indexsql.dir}" />
+	        	<!-- Ranking Engine -->
+	            <path path="${ranking.tablesql.dir}" />
+	        	<path path="${ranking.indexsql.dir}" />
+	        	<!-- Mission Engine -->
+	            <path path="${mission.tablesql.dir}" />
+	        	<path path="${mission.indexsql.dir}" />
+	        	<!-- Progression Engine -->
+	            <path path="${progression.tablesql.dir}" />
+	        	<path path="${progression.indexsql.dir}" />
+	        	<!-- Message Engine -->
+	            <path path="${message.tablesql.dir}" />
+	        	<path path="${message.indexsql.dir}" />
+	        	<!-- SocialNetwork Engine -->
+	        	<path path="${socialnetwork.tablessql.dir}" />
+	        	<path path="${socialnetwork.indexsql.dir}" />
+	        	<!-- PaymentProvider Engine -->
+	        	<path path="${payment.tablessql.dir}" />
+	        	<path path="${payment.indexsql.dir}" />
+	        </concat>
+		</target>
+
+    <!--Generate game schema report sp,if some sql are unnecessary you can comment them-->
+	<target name="generate-game-reportsp">
+        <concat destfile="${build.sql.dir}/reportsp/game_sp.sql" encoding="${default.locale}" outputencoding="${default.locale}">
+        	<!-- Accomplishment Engine -->
+            <path path="${accomplishment.reportsp.dir}" />
+        	<!-- Item Engine -->
+            <path path="${item.reportsp.dir}" />
+        	<!-- Ranking Engine -->
+            <path path="${ranking.reportsp.dir}" />
+        	<!-- Mission Engine -->
+            <path path="${mission.reportsp.dir}" />
+        	<!-- Progression Engine -->
+            <path path="${progression.reportsp.dir}" />
+        </concat>
+	</target>
+	
+    <!--Generate global schema report sp,if some sql are unnecessary you can comment them-->
+	<target name="generate-global-reportsp">
+        <concat destfile="${build.sql.dir}/reportsp/global_sp.sql" encoding="${default.locale}" outputencoding="${default.locale}">
+        	<!-- Account Engine -->
+            <path path="${account.reportsp.dir}" />
+        	<!-- Authentication Engine -->
+            <path path="${authentication.reportsp.dir}" />
+			<!-- Wallet Engine -->
+            <path path="${wallet.reportsp.dir}" />
+        </concat>
+	</target>
+	
+
+    <!-- package global war,if some engines are unnecessary you can comment them -->
+	<target name="package-global-war">
+		<sequential>
+        <!-- clean all
+        <subant target="clean-all">
+            <fileset dir="..">
+            	<include name="**/platform/build.xml"/>
+            	<include name="**/AccountEngine/build.xml"/>
+            	<include name="**/AuthenticationEngine/build.xml"/>
+            	<include name="**/WalletEngine/build.xml"/>
+            </fileset>
+        </subant> -->
+		
+    	<delete file="${tomcat.deploy}/${globalengine}.war" />
+        <delete dir="${tomcat.deploy}/${globalengine}" />
+        <delete dir="${jboss.deploydir}/${globalengine}.ear" />
+		
+        <!-- build each engine -->
+        <subant target="copy-web">
+            <fileset dir="..">
+            	<include name="**/platform/build.xml"/>
+            	<include name="**/AccountEngine/build.xml"/>
+            	<include name="**/AuthenticationEngine/build.xml"/>
+            	<include name="**/WalletEngine/build.xml"/>
+            </fileset>
+        </subant>
+            	
+		<!-- copy to tomcat deploy dir exclude init properties files -->
+        <copy todir="${tomcat.deploy}/${globalengine}" overwrite="true">
+            <fileset dir="${account.root.dir}/build/web">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+        	<fileset dir="${authentication.root.dir}/build/web">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+            <fileset dir="${wallet.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+        </copy>
+
+		<!-- merge init properties files -->
+        <concat destfile="${tomcat.deploy}/${globalengine}/WEB-INF/classes/init_error_code.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+            <path path="${account.root.dir}/build/web/WEB-INF/classes/init_account_error_code.properties" />
+            <path path="${authentication.root.dir}/build/web/WEB-INF/classes/init_authentication_error_code.properties" />
+            <path path="${wallet.root.dir}/build/web/WEB-INF/classes/init_wallet_error_code.properties" />
+            <path path="${build.dir}/web/WEB-INF/classes/init_error_code.properties" />
+        </concat>
+
+    	<concat destfile="${tomcat.deploy}/${globalengine}/WEB-INF/classes/init.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+	        <path path="${account.root.dir}/build/web/WEB-INF/classes/init_account.properties" />
+    		<path path="${authentication.root.dir}/build/web/WEB-INF/classes/init_authentication.properties" />
+    		<path path="${wallet.root.dir}/build/web/WEB-INF/classes/init_wallet.properties" />
+    		<path path="${build.dir}/web/WEB-INF/classes/init.properties" />
+    	</concat>
+
+    	<concat destfile="${tomcat.deploy}/${globalengine}/WEB-INF/classes/init_game_config.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+	        <path path="${account.root.dir}/build/web/WEB-INF/classes/init_game_account_config.properties" />
+    		<path path="${authentication.root.dir}/build/web/WEB-INF/classes/init_game_authentication_config.properties" />
+    		<path path="${wallet.root.dir}/build/web/WEB-INF/classes/init_game_wallet_config.properties" />
+    		<path path="${build.dir}/web/WEB-INF/classes/init_game_config.properties" />
+    	</concat>
+		
+		<!-- build war -->
+        <war warfile="${build.dir}/${globalengine}.war" webxml="${tomcat.deploy}/${globalengine}/WEB-INF/web.xml" >
+            <fileset dir="${tomcat.deploy}/${globalengine}"/>
+        </war>
+		</sequential>
+	</target>
+
+    <!-- package global war for production environment,if some engines are unnecessary you can comment them -->
+	<!-- All configuration value won't be replaced -->
+	<target name="package-global-war-unfilter">
+		<sequential>
+        <!-- clean all 
+        <subant target="clean-all">
+            <fileset dir="..">
+            	<include name="**/platform/build.xml"/>
+            	<include name="**/AccountEngine/build.xml"/>
+            	<include name="**/AuthenticationEngine/build.xml"/>
+            	<include name="**/WalletEngine/build.xml"/>
+            </fileset>
+        </subant>-->
+    	<delete file="${tomcat.deploy}/${globalengine}.war" />
+        <delete dir="${tomcat.deploy}/${globalengine}" />
+        <delete dir="${jboss.deploydir}/${globalengine}.ear" />
+		
+        <!-- build each engine -->
+        <subant target="copy-web-unfilter">
+            <fileset dir="..">
+            	<include name="**/platform/build.xml"/>
+            	<include name="**/AccountEngine/build.xml"/>
+            	<include name="**/AuthenticationEngine/build.xml"/>
+            	<include name="**/WalletEngine/build.xml"/>
+            </fileset>
+        </subant>
+
+		<!-- copy to tomcat deploy dir exclude init properties files -->
+        <copy todir="${global.build.dir}/${globalengine}" overwrite="true">
+            <fileset dir="${account.root.dir}/build/web_unfilter">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+        	<fileset dir="${authentication.root.dir}/build/web_unfilter">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+            <fileset dir="${wallet.root.dir}/build/web_unfilter">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+        </copy>
+
+		<!-- merge init properties files -->
+        <concat destfile="${global.build.dir}/${globalengine}/WEB-INF/classes/init_error_code.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+            <path path="${account.root.dir}/build/web_unfilter/WEB-INF/classes/init_account_error_code.properties" />
+            <path path="${authentication.root.dir}/build/web_unfilter/WEB-INF/classes/init_authentication_error_code.properties" />
+            <path path="${wallet.root.dir}/build/web_unfilter/WEB-INF/classes/init_wallet_error_code.properties" />
+            <path path="${build.dir}/web_unfilter/WEB-INF/classes/init_error_code.properties" />
+        </concat>
+
+    	<concat destfile="${global.build.dir}/${globalengine}/WEB-INF/classes/init.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+	        <path path="${account.root.dir}/build/web_unfilter/WEB-INF/classes/init_account.properties" />
+    		<path path="${authentication.root.dir}/build/web_unfilter/WEB-INF/classes/init_authentication.properties" />
+    		<path path="${wallet.root.dir}/build/web_unfilter/WEB-INF/classes/init_wallet.properties" />
+    		<path path="${build.dir}/web_unfilter/WEB-INF/classes/init.properties" />
+    	</concat>
+
+    	<concat destfile="${global.build.dir}/${globalengine}/WEB-INF/classes/init_game_config.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+	        <path path="${account.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_account_config.properties" />
+    		<path path="${authentication.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_authentication_config.properties" />
+    		<path path="${wallet.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_wallet_config.properties" />
+    		<path path="${build.dir}/web_unfilter/WEB-INF/classes/init_game_config.properties" />
+    	</concat>
+		
+		<!-- build war -->
+        <war warfile="${platform.dist.dir}/${globalengine}.war" webxml="${global.build.dir}/${globalengine}/WEB-INF/web.xml" >
+            <fileset dir="${global.build.dir}/${globalengine}"/>
+        </war>
+		</sequential>
+	</target>
+	
+	
+    <!-- package game war,if some engines are unnecessary you can comment them -->
+	<target name="package-game-war">
+		<sequential>
+        <!-- clean all 
+        <subant target="clean-all">
+            <fileset dir="..">
+            	<include name="**/platform/build.xml"/>
+            	<include name="**/AccomplishmentEngine/build.xml"/>
+            	<include name="**/CharacterEngine/build.xml"/>
+            	<include name="**/GuildEngine/build.xml"/>
+            	<include name="**/ItemEngine/build.xml"/>
+    			<include name="**/MessageEngine/build.xml"/>
+    			<include name="**/MissionEngine/build.xml"/>
+            	<include name="**/ProgressionEngine/build.xml"/>
+        		<include name="**/RankingEngine/build.xml"/>
+            	<include name="**/SocialNetworkEngine/build.xml"/>
+            	<include name="**/PaymentProviderEngine/build.xml"/>
+            </fileset>
+        </subant>-->
+    	<delete file="${tomcat.deploy}/${gameengine}.war" />
+        <delete dir="${tomcat.deploy}/${gameengine}" />
+        <delete dir="${jboss.deploydir}/${gameengine}.ear" />
+		
+        <!-- build each engine -->
+        <subant target="copy-web">
+            <fileset dir="..">
+            	<include name="**/platform/build.xml"/>
+            	<include name="**/AccomplishmentEngine/build.xml"/>
+            	<include name="**/CharacterEngine/build.xml"/>
+            	<include name="**/GuildEngine/build.xml"/>
+            	<include name="**/ItemEngine/build.xml"/>
+    			<include name="**/MessageEngine/build.xml"/>
+    			<include name="**/MissionEngine/build.xml"/>
+            	<include name="**/ProgressionEngine/build.xml"/>
+        		<include name="**/RankingEngine/build.xml"/>
+            	<include name="**/SocialNetworkEngine/build.xml"/>
+            	<include name="**/PaymentProviderEngine/build.xml"/>
+            </fileset>
+        </subant>
+
+		<!-- copy to tomcat deploy dir exclude init properties files -->
+        <copy todir="${tomcat.deploy}/${gameengine}" overwrite="true">
+            <fileset dir="${accomplishment.root.dir}/build/web">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+        	<fileset dir="${character.root.dir}/build/web">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+            <fileset dir="${guild.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${item.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${message.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${mission.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${progression.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${ranking.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${socialnetwork.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${payment.root.dir}/build/web">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+        </copy>
+
+		<!-- merge init properties files -->
+        <concat destfile="${tomcat.deploy}/${gameengine}/WEB-INF/classes/init_error_code.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+            <path path="${accomplishment.root.dir}/build/web/WEB-INF/classes/init_accomplishment_error_code.properties" />
+            <path path="${character.root.dir}/build/web/WEB-INF/classes/init_character_error_code.properties" />
+            <path path="${guild.root.dir}/build/web/WEB-INF/classes/init_guild_error_code.properties" />
+            <path path="${item.root.dir}/build/web/WEB-INF/classes/init_item_error_code.properties" />
+	        <path path="${message.root.dir}/build/web/WEB-INF/classes/init_message_error_code.properties" />
+	        <path path="${mission.root.dir}/build/web/WEB-INF/classes/init_mission_error_code.properties" />
+	        <path path="${progression.root.dir}/build/web/WEB-INF/classes/init_progression_error_code.properties" />
+	        <path path="${ranking.root.dir}/build/web/WEB-INF/classes/init_ranking_error_code.properties" />
+	        <path path="${socialnetwork.root.dir}/build/web/WEB-INF/classes/init_socialnetwork_error_code.properties" />
+        	<path path="${payment.root.dir}/build/web/WEB-INF/classes/init_payment_error_code.properties" />
+        	<path path="${build.dir}/web/WEB-INF/classes/init_error_code.properties" />
+        </concat>
+
+    	<concat destfile="${tomcat.deploy}/${gameengine}/WEB-INF/classes/init.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+	        <path path="${accomplishment.root.dir}/build/web/WEB-INF/classes/init_accomplishment.properties" />
+    		<path path="${character.root.dir}/build/web/WEB-INF/classes/init_character.properties" />
+    		<path path="${guild.root.dir}/build/web/WEB-INF/classes/init_guild.properties" />
+    		<path path="${item.root.dir}/build/web/WEB-INF/classes/init_item.properties" />
+    		<path path="${message.root.dir}/build/web/WEB-INF/classes/init_message.properties" />
+    		<path path="${mission.root.dir}/build/web/WEB-INF/classes/init_mission.properties" />
+    		<path path="${progression.root.dir}/build/web/WEB-INF/classes/init_progression.properties" />
+    		<path path="${ranking.root.dir}/build/web/WEB-INF/classes/init_ranking.properties" />
+    		<path path="${socialnetwork.root.dir}/build/web/WEB-INF/classes/init_socialnetwork.properties" />
+    		<path path="${payment.root.dir}/build/web/WEB-INF/classes/init_payment.properties" />
+    		<path path="${build.dir}/web/WEB-INF/classes/init.properties" />
+    	</concat>
+
+    	<concat destfile="${tomcat.deploy}/${gameengine}/WEB-INF/classes/init_game_config.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+	        <path path="${accomplishment.root.dir}/build/web/WEB-INF/classes/init_game_accomplishment_config.properties" />
+    		<path path="${character.root.dir}/build/web/WEB-INF/classes/init_game_character_config.properties" />
+    		<path path="${guild.root.dir}/build/web/WEB-INF/classes/init_game_guild_config.properties" />
+    		<path path="${item.root.dir}/build/web/WEB-INF/classes/init_game_item_config.properties" />
+			<path path="${message.root.dir}/build/web/WEB-INF/classes/init_game_message_config.properties" />
+			<path path="${mission.root.dir}/build/web/WEB-INF/classes/init_game_mission_config.properties" />
+    		<path path="${progression.root.dir}/build/web/WEB-INF/classes/init_game_progression_config.properties" />
+    		<path path="${ranking.root.dir}/build/web/WEB-INF/classes/init_game_ranking_config.properties" />
+    		<path path="${socialnetwork.root.dir}/build/web/WEB-INF/classes/init_game_socialnetwork_config.properties" />
+    		<path path="${payment.root.dir}/build/web/WEB-INF/classes/init_game_payment_config.properties" />
+    		<path path="${build.dir}/web/WEB-INF/classes/init_game_config.properties" />
+    	</concat>
+        	
+		<!-- build war -->
+        <war warfile="${build.dir}/${gameengine}.war" webxml="${tomcat.deploy}/${gameengine}/WEB-INF/web.xml" >
+            <fileset dir="${tomcat.deploy}/${gameengine}"/>
+        </war>
+		</sequential>
+	</target>
+
+    <!-- package game war for production environment,if some engines are unnecessary you can comment them -->
+	<!-- All configuration value won't be replaced -->
+	<target name="package-game-war-unfilter">
+		<sequential>
+        <!-- clean all 
+        <subant target="clean-all">
+            <fileset dir="..">
+            	<include name="**/platform/build.xml"/>
+            	<include name="**/AccomplishmentEngine/build.xml"/>
+            	<include name="**/CharacterEngine/build.xml"/>
+            	<include name="**/GuildEngine/build.xml"/>
+            	<include name="**/ItemEngine/build.xml"/>
+    			<include name="**/MessageEngine/build.xml"/>
+    			<include name="**/MissionEngine/build.xml"/>
+            	<include name="**/ProgressionEngine/build.xml"/>
+        		<include name="**/RankingEngine/build.xml"/>
+            	<include name="**/SocialNetworkEngine/build.xml"/>
+            	<include name="**/PaymentProviderEngine/build.xml"/>
+            </fileset>
+        </subant>-->
+		
+    	<delete file="${tomcat.deploy}/${gameengine}.war" />
+        <delete dir="${tomcat.deploy}/${gameengine}" />
+        <delete dir="${jboss.deploydir}/${gameengine}.ear" />
+		
+        <!-- build each engine -->
+        <subant target="copy-web-unfilter">
+            <fileset dir="..">
+            	<include name="**/platform/build.xml"/>
+            	<include name="**/AccomplishmentEngine/build.xml"/>
+            	<include name="**/CharacterEngine/build.xml"/>
+            	<include name="**/GuildEngine/build.xml"/>
+            	<include name="**/ItemEngine/build.xml"/>
+    			<include name="**/MessageEngine/build.xml"/>
+    			<include name="**/MissionEngine/build.xml"/>
+            	<include name="**/ProgressionEngine/build.xml"/>
+        		<include name="**/RankingEngine/build.xml"/>
+            	<include name="**/SocialNetworkEngine/build.xml"/>
+            	<include name="**/PaymentProviderEngine/build.xml"/>
+            </fileset>
+        </subant>
+
+		<!-- copy to tomcat deploy dir exclude init properties files -->
+        <copy todir="${game.build.dir}/${gameengine}" overwrite="true">
+            <fileset dir="${accomplishment.root.dir}/build/web_unfilter">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+        	<fileset dir="${character.root.dir}/build/web_unfilter">
+    			<exclude name="**/init*.properties"/>
+        	</fileset>
+            <fileset dir="${guild.root.dir}/build/web_unfilter">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${item.root.dir}/build/web_unfilter">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${message.root.dir}/build/web_unfilter">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${mission.root.dir}/build/web_unfilter">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${progression.root.dir}/build/web_unfilter">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${ranking.root.dir}/build/web_unfilter">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${socialnetwork.root.dir}/build/web_unfilter">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+            <fileset dir="${payment.root.dir}/build/web_unfilter">
+				<exclude name="**/init*.properties"/>
+    		</fileset>
+        </copy>
+
+		<!-- merge init properties files -->
+        <concat destfile="${game.build.dir}/${gameengine}/WEB-INF/classes/init_error_code.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+            <path path="${accomplishment.root.dir}/build/web_unfilter/WEB-INF/classes/init_accomplishment_error_code.properties" />
+            <path path="${character.root.dir}/build/web_unfilter/WEB-INF/classes/init_character_error_code.properties" />
+            <path path="${guild.root.dir}/build/web_unfilter/WEB-INF/classes/init_guild_error_code.properties" />
+            <path path="${item.root.dir}/build/web_unfilter/WEB-INF/classes/init_item_error_code.properties" />
+	        <path path="${message.root.dir}/build/web_unfilter/WEB-INF/classes/init_message_error_code.properties" />
+	        <path path="${mission.root.dir}/build/web_unfilter/WEB-INF/classes/init_mission_error_code.properties" />
+	        <path path="${progression.root.dir}/build/web_unfilter/WEB-INF/classes/init_progression_error_code.properties" />
+	        <path path="${ranking.root.dir}/build/web_unfilter/WEB-INF/classes/init_ranking_error_code.properties" />
+	        <path path="${socialnetwork.root.dir}/build/web_unfilter/WEB-INF/classes/init_socialnetwork_error_code.properties" />
+        	<path path="${payment.root.dir}/build/web_unfilter/WEB-INF/classes/init_payment_error_code.properties" />
+            <path path="${build.dir}/web_unfilter/WEB-INF/classes/init_error_code.properties" />
+        </concat>
+
+    	<concat destfile="${game.build.dir}/${gameengine}/WEB-INF/classes/init.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+	        <path path="${accomplishment.root.dir}/build/web_unfilter/WEB-INF/classes/init_accomplishment.properties" />
+    		<path path="${character.root.dir}/build/web_unfilter/WEB-INF/classes/init_character.properties" />
+    		<path path="${guild.root.dir}/build/web_unfilter/WEB-INF/classes/init_guild.properties" />
+    		<path path="${item.root.dir}/build/web_unfilter/WEB-INF/classes/init_item.properties" />
+    		<path path="${message.root.dir}/build/web_unfilter/WEB-INF/classes/init_message.properties" />
+    		<path path="${mission.root.dir}/build/web_unfilter/WEB-INF/classes/init_mission.properties" />
+    		<path path="${progression.root.dir}/build/web_unfilter/WEB-INF/classes/init_progression.properties" />
+    		<path path="${ranking.root.dir}/build/web_unfilter/WEB-INF/classes/init_ranking.properties" />
+    		<path path="${socialnetwork.root.dir}/build/web_unfilter/WEB-INF/classes/init_socialnetwork.properties" />
+    		<path path="${payment.root.dir}/build/web_unfilter/WEB-INF/classes/init_payment.properties" />
+    		<path path="${build.dir}/web_unfilter/WEB-INF/classes/init.properties" />
+    	</concat>
+
+    	<concat destfile="${game.build.dir}/${gameengine}/WEB-INF/classes/init_game_config.properties" encoding="${default.locale}" outputencoding="${default.locale}">
+	        <path path="${accomplishment.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_accomplishment_config.properties" />
+    		<path path="${character.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_character_config.properties" />
+    		<path path="${guild.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_guild_config.properties" />
+    		<path path="${item.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_item_config.properties" />
+			<path path="${message.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_message_config.properties" />
+			<path path="${mission.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_mission_config.properties" />
+    		<path path="${progression.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_progression_config.properties" />
+    		<path path="${ranking.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_ranking_config.properties" />
+    		<path path="${socialnetwork.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_socialnetwork_config.properties" />
+    		<path path="${payment.root.dir}/build/web_unfilter/WEB-INF/classes/init_game_payment_config.properties" />
+    		<path path="${build.dir}/web_unfilter/WEB-INF/classes/init_game_config.properties" />
+    	</concat>
+		
+		<!-- build war -->
+        <war warfile="${platform.dist.dir}/${gameengine}.war" webxml="${game.build.dir}/${gameengine}/WEB-INF/web.xml" >
+            <fileset dir="${game.build.dir}/${gameengine}"/>
+        </war>
+		</sequential>
+	</target>
+	
+</project>		

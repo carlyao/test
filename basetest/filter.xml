@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+	<!--
+		List of variables in .properties files that will be replaced at build
+		time
+	-->
+	<filterset id="variables.to.replace">
+		<filter token="APPNAME" value="${project.name}" />
+		<filter token="DEFAULT_LOCALE" value="${default.locale}" />
+		<filter token="SERVICESAPPNAME" value="${servicesapp.name}" />
+		<filter token="STATSAPPNAME" value="${statsapp.name}" />
+		<filter token="ERROR-MAILTO" value="${error.mailTo}" />
+		<filter token="ERROR-MAILFROM" value="${mail.default.from}" />
+		<filter token="ERROR-MAILHOST" value="${mail.host}" />
+		<filter token="ERROR-SERVER" value="${error.server}" />
+		<filter token="SECURE-LOGIN" value="${secure.login}" />
+		<filter token="EHCACHE-MULTICAST-GROUP" value="${ehcache.multicast.group}" />
+		<filter token="GAMENAME" value="${gameName}" />
+		<filter token="MISSION-ENGINE-ADDRESS" value="${missionEngineAddress}" />
+		<filter token="ITEM-ENGINE-ADDRESS" value="${itemEngineAddress}" />
+		<filter token="PROGRESSION-ENGINE-ADDRESS" value="${progressionEngineAddress}" />
+		<filter token="ACCOUNT-SERVER-ADDRESS" value="${accountServerAddress}" />
+		<filter token="AUTHENTICATION-ENGINE-ADDRESS" value="${authenticationEngineAddress}" />
+		<filter token="ACCOMPLISHMENT-ENGINE-ADDRESS" value="${accomplishmentEngineAddress}" />
+		<filter token="CHARACTER-ENGINE-ADDRESS" value="${characterEngineAddress}" />
+		<filter token="GUILD-ENGINE-ADDRESS" value="${guildEngineAddress}" />
+		<filter token="MESSAGE-SERVER-ADDRESS" value="${messageEngineAddress}" />
+		<filter token="RANKING-ENGINE-ADDRESS" value="${rankingEngineAddress}" />
+		<filter token="WALLET-ENGINE-ADDRESS" value="${walletEngineAddress}" />
+		<filter token="SOCIALNETWORK-ENGINE-ADDRESS" value="${socialNetworkEngineAddress}" />
+		<filter token="TRUSTED-ADDRESSES" value="${trustedAddresses}" />
+		<filter token="MAIL-HOST" value="${mail.host}" />
+		<filter token="MAIL-USER" value="${mail.username}" />
+		<filter token="MAIL-PASSWORD" value="${mail.password}" />
+
+		<filter token="Liferay_Server_Address" value="${liferayServer.address}" />
+		<filter token="Global_Engine_Address" value="${engineAddress.global}" />
+		<filter token="Game_Engine_Address" value="${engineAddress.game}" />
+		<filter token="Engine_Public_Address_Global" value="${enginePublicAddress.global}" />
+		<filter token="Engine_Public_Address_Game" value="${enginePublicAddress.game}" />
+		<filter token="GameServer_Address" value="${gameServer.address}" />
+		<filter token="Cache_Remote_Enable" value="${enableCache.remote}" />
+		<filter token="Cache_Local_Enable" value="${enableCache.local}" />
+		<filter token="Encryption_Enable" value="${enableEncryption}" />
+		<filter token="EXCEL_HOME" value="${tomcat.home}" />
+        <filter token="JDBC_NAME" value="${jdbc.name}" />
+		<filter token="WEB_CONTEXT" value="${webapp.name}" />
+	</filterset>
+
+	<!--
+		List of variables in .properties files that will be replaced at build
+		time
+	-->
+	<filterset id="config.variables.to.replace">
+		<filter token="GAMENAME" value="${gameName}" />
+
+		<filter token="INIT-DEFAULT-PLATFORMID" value="${defaultPlatformId}" />
+		<filter token="INIT-DEFAULT-TIMEZONE" value="${defaultTimeZone}" />
+		<filter token="INIT-LOGIN-URL" value="${loginUrl}" />
+		<filter token="INIT-REDIRECT-URL" value="${redirectUrl}" />
+		<filter token="INIT-CLIENT-LOGIN-VIEW" value="${clientLoginView}" />
+		<filter token="INIT-LOGIN-VIEW" value="${loginView}" />
+		<filter token="INIT-REDIRECT-VIEW" value="${redirectView}" />
+		<filter token="INIT-LANDING-VIEW" value="${landingView}" />
+		<filter token="INIT-CLIENT-SECURITY" value="${clientSecurity}" />
+		<filter token="INIT-CLIENT-LOGOUT-URL" value="${clientLogoutUrl}" />
+		<filter token="INIT-CLIENT-LOGIN-URL" value="${clientLoginUrl}" />
+		<filter token="INIT-NEW-CLIENT-LOGIN-URL" value="${newClientLoginUrl}" />
+		<filter token="INIT-GAMEHOME-URL" value="${gameHomeUrl}" />
+		<filter token="INIT-FACEBOOK-APPID" value="${facebookAppId}" />
+		<filter token="INIT-FACEBOOK-APIKEY" value="${facebookApiKey}" />
+		<filter token="INIT-FACEBOOK-SECRET" value="${facebookSecret}" />
+		<filter token="INIT-FACEBOOK-APPS-URL" value="${facebookAppsUrl}" />
+		<filter token="INIT-FACEBOOK-APPS-BASE-URL" value="${facebookAppBaseUrl}" />
+		<filter token="INIT-WEBINIT-APPBASE" value="${webInitAppBase}" />
+		<filter token="INIT-WEBINIT-TOPFRAME" value="${webInitTopFrame}" />
+		<filter token="INIT-WEBINIT-URLBASE" value="${webInitUrlBase}" />
+		<filter token="INIT-WEBINIT-IMAGEPATH" value="${webInitImagePath}" />
+		<filter token="INIT-FACEBOOK-TRACK-URL" value="${facebookTrackUrl}" />
+		<filter token="INIT-FACEBOOK-TRACK-APIKEY" value="${facebookTrackApiKey}" />
+		<filter token="INIT-FACEBOOK-TRACK-SECRET" value="${facebookTrackSecret}" />
+	</filterset>
+
+	<!-- List of variables to replace when configuring Tomcat -->
+	<filterset id="db.variables">
+		<filter token="DB-DRIVERNAME" value="${database.driver_class}" />
+		<filter token="DB-URL" value="${database.url}" />
+		<filter token="DB-NAME" value="${database.name}" />
+		<filter token="DB-USERNAME" value="${database.username}" />
+		<filter token="DB-PASSWORD" value="${database.password}" />
+		<filter token="DB-URL-MISSION" value="${database.url.mission}" />
+		<filter token="DB-USERNAME-MISSION" value="${database.username.mission}" />
+		<filter token="DB-PASSWORD-MISSION" value="${database.password.mission}" />
+		<filter token="DB-URL-ITEM" value="${database.url.item}" />
+		<filter token="DB-USERNAME-ITEM" value="${database.username.item}" />
+		<filter token="DB-PASSWORD-ITEM" value="${database.password.item}" />
+		<filter token="DB-URL-PROGRESSION" value="${database.url.progression}" />
+		<filter token="DB-USERNAME-PROGRESSION" value="${database.username.progression}" />
+		<filter token="DB-PASSWORD-PROGRESSION" value="${database.password.progression}" />
+		<filter token="DB-URL-ACCOUNT" value="${database.url.account}" />
+		<filter token="DB-USERNAME-ACCOUNT" value="${database.username.account}" />
+		<filter token="DB-PASSWORD-ACCOUNT" value="${database.password.account}" />
+		<filter token="DB-URL-CHARACTER" value="${database.url.character}" />
+		<filter token="DB-USERNAME-CHARACTER" value="${database.username.character}" />
+		<filter token="DB-PASSWORD-CHARACTER" value="${database.password.character}" />
+		<filter token="DB-URL-WALLET" value="${database.url.wallet}" />
+		<filter token="DB-USERNAME-WALLET" value="${database.username.wallet}" />
+		<filter token="DB-PASSWORD-WALLET" value="${database.password.wallet}" />
+		<filter token="DB-URL-MESSAGE" value="${database.url.message}" />
+		<filter token="DB-USERNAME-MESSAGE" value="${database.username.message}" />
+		<filter token="DB-PASSWORD-MESSAGE" value="${database.password.message}" />
+
+		<filter token="DB-URL-ACCOMPLISHMENT" value="${database.url.accomplishment}" />
+		<filter token="DB-USERNAME-ACCOMPLISHMENT" value="${database.username.accomplishment}" />
+		<filter token="DB-PASSWORD-ACCOMPLISHMENT" value="${database.password.accomplishment}" />
+
+		<filter token="DB-URL-RANKING" value="${database.url.ranking}" />
+		<filter token="DB-USERNAME-RANKING" value="${database.username.ranking}" />
+		<filter token="DB-PASSWORD-RANKING" value="${database.password.ranking}" />
+
+		<filter token="DB-URL-AUTHENTICATION" value="${database.url.authentication}" />
+		<filter token="DB-USERNAME-AUTHENTICATION" value="${database.username.authentication}" />
+		<filter token="DB-PASSWORD-AUTHENTICATION" value="${database.password.authentication}" />
+
+		<filter token="DB-URL-GMTOOL" value="${database.url.gmtool}" />
+		<filter token="DB-USERNAME-GMTOOL" value="${database.username.gmtool}" />
+		<filter token="DB-PASSWORD-GMTOOL" value="${database.password.gmtool}" />
+
+		<filter token="DB-URL-GUILD" value="${database.url.guild}" />
+		<filter token="DB-USERNAME-GUILD" value="${database.username.guild}" />
+		<filter token="DB-PASSWORD-GUILD" value="${database.password.guild}" />
+
+		<filter token="DB-URL-SOCIALNETWORK" value="${database.url.socialnetwork}" />
+		<filter token="DB-USERNAME-SOCIALNETWORK" value="${database.username.socialnetwork}" />
+		<filter token="DB-PASSWORD-SOCIALNETWORK" value="${database.password.socialnetwork}" />
+
+		<filter token="DB-URL-TELEMETRY" value="${database.url.telemetry}" />
+		<filter token="DB-USERNAME-TELEMETRY" value="${database.username.telemetry}" />
+		<filter token="DB-PASSWORD-TELEMETRY" value="${database.password.telemetry}" />
+
+	</filterset>
+</project>
+

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Bridge-generator" basedir="." default="build-service" >
+	<property environment="env" />
+	
+    <property file="${basedir}/build.properties" />
+    
+    <property name="platform.root.dir" location="${platform.root.dir.relative}"/>
+    <import file="${platform.root.dir}/build-base-generator.xml"/>
+
+</project>

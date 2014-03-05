@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Bridge" default="dist-web">
+
+	<property environment="env" />
+
+	<property file="build.${env.CI_ENV}.properties" />
+
+	<property file="build.properties" />
+
+	<import file="filter.xml" />
+
+	<!-- Initial properties -->
+	<property name="platform.root.dir"
+              location="${platform.root.dir.relative}" />
+	<import file="${platform.root.dir}/build-module.xml" />
+
+	<target name="deploy-all" depends="clean-all, dist-web" />
+
+	<target name="clean-deploy"
+            depends="clean-all, dist-web"
+            description="Clean all assets and deploy." />
+
+	<target name="generate-doc">
+		<enginetask target="clean" />
+		<enginetask target="compile-web" />
+
+		<property name="project.dir" value="${basedir}" />
+		<property name="outputDir1" value="${project.dir}/docs/generated" />
+
+		<java classname="com.augmentum.common.generator.DocBuilder" classpathref="project.classpath" fork="true" maxmemory="256m" newenvironment="true">
+			<sysproperty key="outputDir1" value="${outputDir1}" />
+		</java>
+	</target>
+</project>

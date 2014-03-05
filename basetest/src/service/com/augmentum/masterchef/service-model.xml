@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!DOCTYPE service-builder SYSTEM "../../../../../tools/koinos-service-builder.dtd" >
+<service-builder package-path="com.augmentum.masterchef">
+<entity name="Version" local-service="true">
+		<!-- PK fields -->
+		<column name="version" type="String" primary="true" />
+		<!-- column -->
+		<column name="createdDate" type="Date" />
+	</entity>
+	<entity name="User" local-service="true">
+		<!-- PK fields -->
+		<column name="userId" type="Long" primary="true" id-type="native"/>
+		<!-- column -->
+		<column name="accountId" type="long" />
+		<column name="loginUserId" type="String" db-size="75" />
+		<column name="userName" type="String" db-size="75" />
+		<column name="lastLoginIP" type="String" db-size="20" />
+		<!-- finder -->
+		<finder name="UserId" return-type="User">
+			<finder-column name="userId" />
+		</finder>
+		<finder name="AccountId" return-type="User">
+			<finder-column name="accountId" />
+		</finder>
+		<finder name="LoginUserId" return-type="User">
+			<finder-column name="loginUserId" />
+		</finder>
+	</entity>
+	
+	<entity name="Account" local-service="true">
+		<!-- PK fields -->
+		<column name="accountId" type="Long" primary="true" id-type="native"/>
+		<!-- column -->
+		<column name="loginUserId" type="String" db-size="75" />
+		<column name="accountName" type="String" db-size="75" />
+		<column name="sessionId" type="String" db-size="75" />
+		<column name="password" type="String" db-size="75" />
+		<column name="registerTime" type="Date"  />
+		<column name="createdBy" type="String" db-size="75" />
+		<column name="lastLoginTime" type="Date"  />
+		<column name="modifiedDate" type="Date" />
+		<column name="modifiedBy" type="String" db-size="75" />
+		<column name="platform" type="String" db-size="75" />
+		<column name="ip" type="String" db-size="75" />
+		<!-- finder -->
+		<finder name="AccountId" return-type="Account">
+			<finder-column name="accountId" />
+		</finder>
+		<finder name="LoginUserId" return-type="Account">
+			<finder-column name="loginUserId" />
+		</finder>
+	</entity>
+		<entity name="AccountHistory" local-service="true">
+		<!-- PK fields -->
+		<column name="accountHistoryId" type="Long" primary="true" id-type="native"/>
+		<!-- column -->
+		<column name="accountId" type="long" />
+		<column name="sessionId" type="String" db-size="75" />
+		<column name="keyValue" type="String"  db-size="75"/>
+		<column name="loginTime" type="Date"  />
+		<column name="modifiedDate" type="Date" />
+		<column name="ip" type="String" db-size="75" />
+		<!-- finder -->
+		<finder name="AccountId" return-type="Collection">
+			<finder-column name="accountId" />
+		</finder>
+		<finder name="AccountHistoryId" return-type="AccountHistory">
+			<finder-column name="accountHistoryId" />
+		</finder>
+	</entity>
+	
+	 <entity name="Wallet_Def" local-service="true">
+        <!-- PK fields -->
+        <column name="walletId" type="Long" primary="true" />
+        <column name="name" type="String" />
+        <column name="description" type="String" />
+        <column name="defaultValue" type="Integer" />
+        <finder name="WalletId" return-type="Wallet_Def">
+            <finder-column name="walletId" />
+        </finder>
+    </entity>
+    
+    <entity name="UserWallet" local-service="true">
+        <!-- PK fields -->
+        <column name="userWalletId" type="Long" primary="true" id-type="native"/>
+        <column name="userId" type="Long" />
+        <column name="walletId" type="Long" />
+        <column name="value" type="Integer" />
+        <column name="createDate" type="Date" />
+        <finder name="UserWalletId" return-type="UserWallet">
+            <finder-column name="userWalletId" />
+        </finder>
+        <finder name="UserIdAndWalletId" return-type="UserWallet">
+            <finder-column name="userId" />
+            <finder-column name="walletId" />
+        </finder>
+    </entity>
+    
+    <entity name="UserWalletTransaction" local-service="true">
+        <!-- PK fields -->
+        <column name="transactionId" type="Long" primary="true" id-type="native"/>
+        <column name="userWalletId" type="Long" />
+        <column name="userId" type="Long" />
+        <column name="walletId" type="Long" />
+        <column name="totalSpend" type="Integer" />
+        <column name="subject" type="String" />
+        <column name="ip" type="String" />
+        <column name="createDate" type="Date" />
+        <finder name="TransactionId" return-type="UserWalletTransaction">
+            <finder-column name="transactionId" />
+        </finder>
+        <finder name="UserId" return-type="Collection">
+            <finder-column name="userId" />
+        </finder>
+        <finder name="UserIdAndWalletId" return-type="Collection">
+            <finder-column name="userId" />
+            <finder-column name="walletId" />
+        </finder>
+    </entity>
+</service-builder>

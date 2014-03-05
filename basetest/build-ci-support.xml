@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Bridge_Kiosk" default="deploy-all-skip-SVN">
+
+
+	<!-- ============================================================ -->
+
+	<property name="project.home" location="." />
+	<property name="preparatory.webapps"
+              value="/usr/local/preparatory_webapps" />
+	<property name="tomcat.home" value="/usr/local/tomcat-kiosk" />
+
+	<property name="tomcat.webapps" value="${tomcat.home}/webapps" />
+
+	<property name="tomcat.ip" value="localhost" />
+	<property name="tomcat.port" value="8080" />
+
+	<property name="db.username" value="root" />
+	<property name="db.password" value="123" />
+
+	<!-- ============================================================ -->
+
+	<property file="build.properties" />
+	<import file="filter.xml" />
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${project.home}\lib\ant\ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+	<condition property="isWindows">
+		<os family="windows" />
+	</condition>
+
+	<target name="deploy-all"
+            depends="svn-cleanup, svn-revert, svn-update, prepare-project, build-project, stop-Tomcat, waiting, import-sql, deploy-project, start-Tomcat" />
+
+	<target name="deploy-all-skip-SVN"
+            depends="prepare-project, build-project, stop-Tomcat, waiting, import-sql, deploy-project, start-Tomcat" />
+
+	<target name="deploy-all-skip-SVN-skip-DB"
+            depends="prepare-project, build-project, stop-Tomcat, waiting, deploy-project, start-Tomcat" />
+
+	<target name="svn-cleanup">
+		<exec executable="svn">
+			<arg value="cleanup" />
+			<arg value="${project.home}" />
+		</exec>
+	</target>
+
+	<target name="svn-revert">
+		<exec executable="svn">
+			<arg value="revert" />
+			<arg value="-R" />
+			<arg value="${project.home}" />
+		</exec>
+	</target>
+
+	<target name="svn-update">
+		<exec executable="svn">
+			<arg value="update" />
+			<arg value="-r" />
+			<arg value="HEAD" />
+			<arg value="${project.home}" />
+		</exec>
+	</target>
+
+	<target name="stop-Tomcat">
+		<exec executable="${tomcat.home}/bin/catalina.sh"
+              dir="${tomcat.home}/bin"
+              spawn="false"
+              osfamily="unix">
+			<env key="BUILD_ID" value="dontKillMe" />
+			<arg line="stop -force" />
+		</exec>
+		<exec executable="${tomcat.home}/bin/catalina.bat"
+              dir="${tomcat.home}/bin"
+              spawn="false"
+              osfamily="windows">
+			<env key="BUILD_ID" value="dontKillMe" />
+			<arg line="stop" />
+		</exec>
+	</target>
+
+	<target name="start-Tomcat">
+		<exec executable="${tomcat.home}/bin/catalina.sh"
+              dir="${tomcat.home}/bin"
+              spawn="false"
+              osfamily="unix">
+			<env key="BUILD_ID" value="dontKillMe" />
+			<arg line="start" />
+		</exec>
+		<exec executable="${tomcat.home}/bin/catalina.bat"
+              dir="${tomcat.home}/bin"
+              spawn="false"
+              osfamily="windows">
+			<env key="BUILD_ID" value="dontKillMe" />
+			<arg line="start" />
+		</exec>
+	</target>
+
+	<target name="waiting">
+		<echo message="Wait until Tomcat has been shut down ..." />
+		<waitfor maxwait="180"
+                 maxwaitunit="second"
+                 checkevery="2"
+                 checkeveryunit="second">
+			<not>
+				<socket server="${tomcat.ip}" port="${tomcat.port}" />
+			</not>
+		</waitfor>
+	</target>
+
+	<macrodef name="importSQL">
+		<attribute name="db.name" />
+		<attribute name="sql.file" />
+		<sequential>
+			<echo message="import: @{db.name} &lt; @{sql.file}" />
+			<exec executable="mysql" input="@{sql.file}" osfamily="unix">
+				<arg value="-u${db.username}" />
+				<arg value="-p${db.password}" />
+				<arg value="@{db.name}" />
+			</exec>
+			<exec executable="mysql" input="@{sql.file}" osfamily="windows">
+				<arg value="-u${db.username}" />
+				<arg value="-p${db.password}" />
+				<arg value="@{db.name}" />
+			</exec>
+		</sequential>
+	</macrodef>
+
+	<target name="import-sql">
+		<importSQL db.name="masterchef"
+                   sql.file="${project.home}/sql/create-database.sql" />
+		<for param="sqlfile">
+			<path>
+				<filelist dir="${project.home}/sql/generated">
+					<file name="tables.sql" />
+					<file name="indexes.sql" />
+					<file name="foreignkey.sql" />
+				</filelist>
+			</path>
+			<sequential>
+				<importSQL db.name="masterchef" sql.file="@{sqlfile}" />
+			</sequential>
+		</for>
+		<!-- 
+		<for param="sqlfile">
+			<path>
+				<fileset dir="${project.home}/sql/init">
+					<include name="*.sql" />
+				</fileset>
+			</path>
+			<sequential>
+				<importSQL db.name="masterchef" sql.file="@{sqlfile}" />
+			</sequential>
+		</for>
+		-->
+	</target>
+
+	<target name="prepare-project">
+	</target>
+
+	<target name="build-project">
+		<ant dir="${project.home}"
+             antfile="build.xml"
+             target="deploy-all"
+             inheritall="true">
+			<property name="platform.root.dir" value="${project.home}" />
+			<property name="tomcat.deploy" value="${preparatory.webapps}" />
+		</ant>
+	</target>
+
+	<target name="deploy-project">
+		<delete dir="${tomcat.webapps}/${webapp.name}/" />
+		<copy todir="${tomcat.webapps}"
+              encoding="ISO-8859-1"
+              overwrite="true"
+              verbose="false">
+			<fileset dir="${preparatory.webapps}">
+				<include name="${webapp.name}/" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="util-generate-service">
+		<ant dir="${project.home}"
+             antfile="build-generator.xml"
+             target="build-service"
+             inheritall="false">
+			<property name="platform.root.dir" value="${project.home}" />
+		</ant>
+	</target>
+
+	<target name="util-deploy-pages">
+		<copy todir="${tomcat.webapps}/${webapp.name}"
+              encoding="ISO-8859-1"
+              overwrite="true"
+              verbose="false">
+			<fileset dir="web">
+				<include name="**" />
+				<exclude name="WEB-INF/**" />
+			</fileset>
+			<filterset refid="variables.to.replace" />
+		</copy>
+		<copy todir="${tomcat.webapps}/${webapp.name}"
+              encoding="ISO-8859-1"
+              overwrite="true"
+              verbose="false">
+			<fileset dir="web">
+				<include name="WEB-INF/content/**" />
+			</fileset>
+		</copy>
+	</target>
+	
+</project>
