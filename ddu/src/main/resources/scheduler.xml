@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd"
+       default-lazy-init="false">
+
+    <description>使用Spring的 Scheduled的定时任务配置</description>
+
+    <task:scheduler id="springScheduler" pool-size="3"/>
+
+    <!-- 整点每5分钟执行一次更新 -->
+    <task:scheduled-tasks scheduler="springScheduler">
+        <!--
+           <task:scheduled ref="userBestPortfolio" method="load" cron="0/10 * * * * ?"/>
+           -->
+        <task:scheduled ref="userBestPortfolio" method="load" cron="0 0 16 * * ?"/>
+        <task:scheduled ref="userBestPortfolio" method="start" cron="0 0 9 * * ?"/>
+        <task:scheduled ref="userBestPortfolio" method="end" cron="0 0 15 * * ?"/>
+        <task:scheduled ref="userBestPortfolio" method="releaseAndCanSaying" cron="0 0/3 * * * ?"/>
+        <task:scheduled ref="rongCloudHistoryMessageScheduler" method="load" cron="0 0 0 * * ?"/>
+
+
+    </task:scheduled-tasks>
+
+    <!--  -->
+    <bean id="userBestPortfolio" class="com.upchina.scheduler.PortfolioScheduler"/>
+    <bean id="rongCloudHistoryMessageScheduler" class="com.upchina.scheduler.RongCloudHistoryMessageScheduler"/>
+
+</beans>

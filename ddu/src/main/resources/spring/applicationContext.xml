@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd"
+	default-lazy-init="true">
+
+	<description>Spring公共配置</description>
+
+	<!-- 使用annotation 自动注册bean, 并保证@Required、@Autowired的属性被注入 -->
+	<context:component-scan base-package="com.upchina">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
+
+	<context:property-placeholder
+		ignore-resource-not-found="false"
+		location="classpath:properties/application.properties" />
+
+	<bean id="properties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:properties/ddu.properties</value>
+			</list>
+		</property>
+		<qualifier value="main" />
+	</bean>
+
+	<bean id="propertyUtils" class="com.upchina.util.PropertyUtils">
+		<property name="properties" ref="properties" />
+	</bean>
+	<!-- -->
+	
+	<!-- 数据源使用alibaba druid连接池 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+
+		<property name="filters" value="stat" />
+
+		<property name="maxActive" value="${jdbc.maxActive}" />
+		<property name="initialSize" value="${jdbc.initialSize}" />
+		<property name="maxWait" value="${jdbc.maxWait}" />
+		<property name="minIdle" value="${jdbc.minIdle}" />
+
+		<property name="timeBetweenEvictionRunsMillis" value="3000" />
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize"
+			value="20" />
+
+		<property name="validationQuery" value="select 1 from dual" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+	</bean>
+	<!--
+	<bean id="multipleDataSource" class="com.upchina.util.MultipleDataSource"> 
+		<property name="defaultTargetDataSource" ref="dataSource"/> 
+		<property name="targetDataSources"> 
+			<map> 
+				<entry key="dataSource" value-ref="dataSource"/> 
+				<entry key="accountDataSource" value-ref="accountDataSource"/> 
+			</map> 
+		</property> 
+	</bean> 
+ -->
+	<bean id="sqlSessionFactory" name="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage" value="com.upchina.model" />
+		<property name="configLocation" value="classpath:db/mybatis.xml"></property>
+		<property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageHelper">
+					<property name="properties">
+						<value>
+							dialect=mysql
+							reasonable=true
+						</value>
+					</property>
+				</bean>
+				<bean class="tk.mybatis.mapper.mapperhelper.MapperInterceptor">
+					<property name="properties">
+						<value>
+							mappers=tk.mybatis.mapper.common.Mapper,tk.mybatis.mapper.common.MySqlMapper
+							IDENTITY=MYSQL
+							notEmpty=true
+						</value>
+					</property>
+				</bean>
+			</array>
+		</property>
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+		<property name="basePackage" value="com.upchina.dao" />
+	</bean>
+
+	<aop:aspectj-autoproxy/>
+	
+	<aop:config>
+		<aop:pointcut id="appService"
+			expression="execution(* com.upchina.service..*Service*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="appService" />
+	</aop:config>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="select*" read-only="true" />
+			<tx:method name="find*" read-only="true" />
+			<tx:method name="get*" read-only="false" />
+			<tx:method name="query*" read-only="true" />
+			<tx:method name="page*" read-only="true" />
+			<tx:method name="is*" read-only="true" />
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+
+
+
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+	<!-- sqlMapper 实现自定义SQL执行 -->
+	<bean id="sqlMapper" class="com.upchina.util.SqlMapper" scope="prototype">
+		<constructor-arg ref="sqlSession" />
+	</bean>
+
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate"
+		scope="prototype">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+
+	<bean id="accountDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<property name="url" value="${account.url}" />
+		<property name="username" value="${account.username}" />
+		<property name="password" value="${account.password}" />
+
+		<property name="filters" value="stat" />
+
+		<property name="maxActive" value="${account.maxActive}" />
+		<property name="initialSize" value="${account.initialSize}" />
+		<property name="maxWait" value="${account.maxWait}" />
+		<property name="minIdle" value="${account.minIdle}" />
+
+		<property name="timeBetweenEvictionRunsMillis" value="3000" />
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize"
+			value="20" />
+
+		<property name="validationQuery" value="select 1 from dual" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+	</bean>
+
+	<!-- -->
+	<bean id="accountsqlSessionFactory" name="accountSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="accountDataSource" />
+		<property name="typeAliasesPackage" value="com.upchina.account.model" />
+		<property name="configLocation" value="classpath:db/mybatis.xml"></property>
+		<property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageHelper">
+					<property name="properties">
+						<value>
+							dialect=mysql
+							reasonable=true
+						</value>
+					</property>
+				</bean>
+				<bean class="tk.mybatis.mapper.mapperhelper.MapperInterceptor">
+					<property name="properties">
+						<value>
+							mappers=tk.mybatis.mapper.common.Mapper,tk.mybatis.mapper.common.MySqlMapper
+							IDENTITY=MYSQL
+							notEmpty=true
+						</value>
+					</property>
+				</bean>
+			</array>
+		</property>
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactoryBeanName" value="accountsqlSessionFactory"/>
+		<property name="basePackage" value="com.upchina.account.dao" />
+	</bean>
+	<bean id="accountSqlMapper" class="com.upchina.util.SqlMapper"
+		scope="prototype">
+		<constructor-arg ref="accountSqlSession" />
+	</bean>
+	<bean id="accountSqlSession" class="org.mybatis.spring.SqlSessionTemplate"
+		scope="prototype">
+		<constructor-arg index="0" ref="accountSqlSessionFactory" />
+	</bean>
+
+
+</beans>
